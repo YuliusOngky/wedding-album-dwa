@@ -1,437 +1,438 @@
-# Cursor Build Prompt — Digital Wedding Album (DWA)
+# Cursor Build Prompt — DWA Album Factory
 
-> **Cara pakai:** buka folder repo di Cursor, lalu paste isi file ini ke Composer/Agent (mode Agent, model paling kuat).
-> Kerjakan **milestone demi milestone**. Jangan lompat. Setiap milestone selesai → jalankan acceptance test → commit → lanjut.
-
----
-
-## 1. Konteks
-
-Saya punya **prototipe UI statis** untuk produk "Digital Wedding Album" — album pernikahan digital yang bisa dibuat pengantin, lalu tamu undangan ikut menyumbang foto lewat QR code.
-
-Prototipe ini **hanya mockup click-through**: tidak ada backend, tidak ada upload beneran, tidak ada database. Semua foto adalah CSS gradient, semua tombol hanya mengganti layar.
-
-**Tugasmu: bangun aplikasi sungguhan dari prototipe ini, sampai bisa dipakai membuat album asli.**
-
-Prototipe adalah **sumber kebenaran untuk desain** — warna, tipografi, spacing, alur layar, dan copywriting harus diikuti. Jangan mendesain ulang.
+> **Cara pakai:** buka folder repo ini di Cursor → Composer mode Agent → paste seluruh isi file ini.
+> Kerjakan **milestone berurutan M0 → M7**. Jangan lompat. Tiap milestone: bangun → jalankan acceptance test → commit → lapor → lanjut.
 
 ---
 
-## 2. Aset yang sudah ada
+## 1. Apa yang dibangun
 
-Semua ada di root repo ini:
+**Bukan** SaaS tempat pengantin mendaftar sendiri. Ini **pabrik album** — alat produksi internal yang dijalankan oleh satu operator (pemilik studio).
 
-| File | Isi | Pakai sebagai |
+Alur kerjanya:
+
+```
+1. Klien datang menyerahkan foto & video
+2. Operator buat project baru, isi data klien
+3. Operator masukkan semua foto + 1 wedding film
+4. Sistem menyeleksi & menyusun otomatis → tampil di preview
+5. Operator merapikan di preview: buang foto jelek, tukar, geser, ganti layout
+6. Export → album statis siap deploy
+7. Deploy ke mana, ditentukan per klien
+```
+
+Ditambah satu komponen kecil terpisah: **Guest Intake** — halaman QR tempat tamu undangan menyumbang foto saat hari-H. Hasilnya ditarik masuk ke studio.
+
+---
+
+## 2. Tiga komponen, beda tempat jalan
+
+| Komponen | Jalan di mana | Sifat | Ukuran kerja |
+|---|---|---|---|
+| **Studio** | `localhost` di komputer operator | Berat: ingest, AI, preview, editor, export | ~75% dari pekerjaan |
+| **Guest Intake** | Server online (NAS), aktif ~1 minggu seputar hari-H | Sangat tipis: QR landing + terima upload. Tidak ada editor. | ~15% |
+| **Album terbit** | Statis, deploy per klien | Tidak ada server. HTML + gambar. | ~10% |
+
+**Prinsip yang mengikat semuanya:** yang online seminimal mungkin. Semua pekerjaan berat terjadi di localhost, di mana tidak ada biaya bandwidth, tidak ada batas waktu request, dan tidak ada yang bisa jebol.
+
+---
+
+## 3. Aset yang sudah ada
+
+Lima prototipe HTML di root repo. **Ini sumber kebenaran desain — ikuti, jangan didesain ulang.**
+
+| File | Isi | Dipakai untuk |
 |---|---|---|
-| `dwa-prototype.html` | Style guide + 10 layar landing/onboarding | **Design token & komponen** |
-| `dwa-r2-s1.html` | Creation Flow (6 layar): landing → setup → culture → upload → processing → ready | Alur onboarding pengantin |
-| `dwa-r2-s2.html` | Desktop Album Editor: chapter list, live mobile preview, panel AI/Layout/Photos/Story | Layout editor |
-| `dwa-r2-s3.html` | Mobile Album Viewer (9 halaman: cover → our story → journey → akad → tradisi → keluarga → resepsi → film → guest memories) | Tampilan album jadi |
-| `dwa-r2-s4.html` | Guest Experience (5 layar): QR landing → upload → nama & relasi → uploading → thank you | Alur tamu |
-| `index.html` | Landing index prototipe | — |
+| `dwa-prototype.html` | Style guide, token, komponen | Ambil `:root` → jadi `tokens.css` |
+| `dwa-r2-s1.html` | Creation Flow 6 layar | Alur buat project baru di Studio |
+| `dwa-r2-s2.html` | Desktop Album Editor | **Layar utama Studio** — chapter list, live preview, panel kanan |
+| `dwa-r2-s3.html` | Mobile Album Viewer 9 halaman | Template album terbit + isi live preview |
+| `dwa-r2-s4.html` | Guest Experience 5 layar | Guest Intake |
 
-**Design token** (ambil dari `dwa-prototype.html`, blok `:root`):
-
+Token warna (`dwa-prototype.html`, blok `:root`):
 ```
 --ink:#0E0E10  --espresso:#1C1915  --stone:#6B5E52  --muted:#9C8C80
 --champagne:#E8DCD0  --ivory:#F7F2EA  --gold:#C9A96E  --gold-dk:#A08848
 ```
-
-Font: **Cormorant Garamond** (display/serif) + **DM Sans** (body/UI). Keduanya dari Google Fonts.
-
-Bahasa UI produk: **Bahasa Indonesia**. Konteks budaya: pernikahan adat Indonesia (Jawa, Sunda, Bali, Minang, Batak) — istilah seperti Akad Nikah, Siraman, Midodareni, Panggih, Resepsi dipakai apa adanya.
+Font: **Cormorant Garamond** (display) + **DM Sans** (UI/body), Google Fonts.
+Bahasa UI: **Indonesia**. Konteks: pernikahan adat Indonesia — Akad Nikah, Siraman, Midodareni, Panggih, Resepsi dipakai apa adanya.
 
 ---
 
-## 3. Keputusan yang sudah terkunci — jangan diubah tanpa tanya
+## 4. Keputusan terkunci
 
-| Aspek | Keputusan |
-|---|---|
-| Backend | **Node.js 20 + Express** (bukan Nest, bukan Fastify) |
-| Database | **PostgreSQL 16**, akses via `pg` + query SQL eksplisit. Boleh pakai `node-pg-migrate` untuk migration. **Jangan pakai ORM berat** (Prisma/TypeORM/Sequelize). |
-| Frontend | **React 18 + Vite**, JavaScript (bukan TypeScript), React Router, plain CSS + CSS variables (bukan Tailwind — token sudah ada di prototipe) |
-| Auth | **Email + password**, hash `argon2`, sesi via **JWT di httpOnly cookie** (SameSite=Lax, 30 hari) |
-| Storage | Filesystem lokal di volume Docker NAS (`/data/media`). Abstraksi lewat satu modul `storage.js` supaya nanti gampang pindah ke S3/R2. |
-| AI | **AI dasar tanpa LLM** — lihat §7. Tidak ada panggilan ke OpenAI/Claude/Gemini di MVP ini. |
-| Deploy | **Docker Compose di NAS** (Windows host, 192.168.1.20), di belakang nginx yang sudah ada |
-| Testing | `node:test` + `supertest` untuk API. Vitest untuk util frontend. Tidak perlu E2E dulu. |
+Keputusan ini **menggantikan** versi spec sebelumnya. Jangan diubah tanpa menuliskan alasannya di `docs/decisions.md`.
+
+| Aspek | Keputusan | Kenapa |
+|---|---|---|
+| Studio runtime | **Node.js 20 + Express**, buka di browser `http://localhost:4000` | Bukan Electron. Lebih sederhana, tidak perlu bundling desktop. |
+| Database Studio | **SQLite** via `better-sqlite3` | Aplikasi satu operator di satu mesin. PostgreSQL + Docker jadi beban tanpa manfaat. Satu file `.db`, gampang di-backup. |
+| Frontend | **React 18 + Vite**, JavaScript (bukan TS), plain CSS + CSS variables | Token sudah ada, Tailwind cuma menambah lapisan. |
+| Auth Studio | **Tidak ada.** Bind ke `127.0.0.1` saja. | Localhost, satu operator. Login = keamanan teater. |
+| Image | `sharp` | — |
+| Video | `ffmpeg` via `ffmpeg-static` + spawn langsung | Jangan `fluent-ffmpeg`, argumen eksplisit lebih mudah di-debug. |
+| Guest Intake | Node + Express + SQLite, container Docker kecil di NAS | Harus online, tapi permukaannya sengaja dibuat sempit. |
+| Album terbit | **Statis murni** — HTML + CSS + JS + gambar. Tanpa server, tanpa build step saat runtime. | Deploy ke mana saja, hidup selamanya, tidak bisa mati karena NAS mati. |
+| Testing | `node:test` + `supertest` (server), Vitest (util frontend) | — |
+
+### Aturan portabilitas export — wajib
+
+Album hasil export **harus jalan di path apa pun tanpa dikonfigurasi ulang**, karena tujuan deploy ditentukan belakangan per klien:
+
+- Semua path di HTML/CSS/JS **relatif** (`./media/...`), tidak pernah diawali `/`
+- Tidak ada base URL yang di-hardcode
+- Tidak ada request ke domain luar kecuali Google Fonts — dan sediakan fallback font lokal
+- Buka `index.html` langsung lewat `file://` harus tetap menampilkan album (boleh tanpa fitur share)
+
+Ini berarti bundle yang sama bisa ditaruh di `optimadigitalselaras.com/album/nama/`, di subdomain, di hosting klien, atau di flashdisk — tanpa build ulang.
 
 ---
 
-## 4. Arsitektur
+## 5. Struktur folder
 
 ```
 wedding-album-dwa/
-├─ prototypes/              # 5 file HTML lama dipindah ke sini (arsip, jangan diubah)
-├─ server/
-│  ├─ src/
-│  │  ├─ index.js           # entry, express app
-│  │  ├─ db.js              # pool pg + helper query
-│  │  ├─ config.js          # baca env, validasi saat boot
-│  │  ├─ storage.js         # put/get/delete file — satu-satunya yang sentuh disk
-│  │  ├─ middleware/        # auth.js, error.js, ratelimit.js, validate.js
-│  │  ├─ routes/            # auth, albums, chapters, pages, photos, guests, public
-│  │  ├─ services/          # album.js, photo.js, qr.js
-│  │  └─ ai/                # quality.js, dedup.js, faces.js, curate.js, layout.js
-│  ├─ migrations/
-│  └─ test/
-├─ web/                     # React app (pengantin: onboarding + editor)
-│  ├─ src/
-│  │  ├─ styles/tokens.css  # SALIN PERSIS dari dwa-prototype.html
-│  │  ├─ components/
-│  │  ├─ pages/
-│  │  └─ api/client.js
-│  └─ vite.config.js
-├─ guest/                   # React app terpisah, bundle kecil (tamu: QR upload)
-├─ docker/
-│  ├─ docker-compose.yml
-│  ├─ Dockerfile.server
-│  └─ nginx-wedding.conf
-└─ docs/
+├─ prototypes/               # 5 HTML lama dipindah ke sini. Arsip. Jangan diubah.
+├─ studio/
+│  ├─ server/
+│  │  ├─ src/
+│  │  │  ├─ index.js         # express, bind 127.0.0.1:4000
+│  │  │  ├─ db.js            # better-sqlite3 + migration runner
+│  │  │  ├─ paths.js         # semua path project ada di sini, jangan tebar string path
+│  │  │  ├─ routes/          # projects, media, chapters, pages, curate, export, intake
+│  │  │  ├─ pipeline/        # ingest.js, image.js, video.js, worker.js
+│  │  │  ├─ ai/              # quality.js, dedup.js, faces.js, curate.js, layout.js
+│  │  │  └─ export/          # build.js, template/  ← template album terbit
+│  │  └─ test/
+│  └─ web/                   # React: Studio UI
+├─ intake/                   # Node + React, service tamu (Docker)
+├─ docs/
+└─ data/                     # .gitignore — project operator ada di sini
+   └─ projects/<slug>/
+      ├─ project.db
+      ├─ originals/          # file asli, TIDAK PERNAH diubah
+      ├─ derived/            # thumb/preview/full/video hasil olahan
+      └─ export/             # bundle siap deploy
 ```
 
-**Kenapa `guest/` terpisah:** tamu membuka lewat HP di kondangan, sering sinyal jelek. Bundle harus < 150 KB gzip dan tidak ikut membawa kode editor.
+**Aturan `originals/`:** file asli klien hanya ditulis sekali saat ingest, sesudah itu read-only. Semua operasi bekerja di `derived/`. Kalau operator salah langkah, foto asli tidak pernah hilang.
 
 ---
 
-## 5. Skema database
+## 6. Skema database (SQLite)
 
-Buat sebagai migration bernomor. Semua id `uuid` (`gen_random_uuid()`, aktifkan `pgcrypto`). Semua tabel punya `created_at timestamptz default now()`.
+Satu file `.db` per project di `data/projects/<slug>/project.db`, plus satu `data/studio.db` berisi daftar project.
 
+`studio.db`:
 ```sql
--- pemilik album
-users(id, email unique citext, password_hash, name, created_at)
+projects(id, slug UNIQUE, client_name, bride_name, groom_name,
+         event_date, venue, culture, style, status,
+         created_at, updated_at, last_opened_at)
+-- culture: 'jawa'|'sunda'|'bali'|'minang'|'batak'|'umum'
+-- style:   'editorial'|'cinematic'|'romantic'|'minimal'
+-- status:  'draft'|'curating'|'ready'|'exported'
+```
 
--- album
-albums(
-  id, owner_id → users,
-  slug unique,                    -- "yulius-ananda", dipakai di URL publik
-  bride_name, groom_name,
-  event_date date,
-  venue,
-  culture,                        -- 'jawa'|'sunda'|'bali'|'minang'|'batak'|'umum'
-  style,                          -- 'editorial'|'cinematic'|'romantic'|'minimal'
-  cover_photo_id → photos null,
-  status,                         -- 'draft'|'published'
-  guest_upload_enabled bool default true,
-  guest_upload_closes_at timestamptz null,
-  privacy,                        -- 'public'|'unlisted'|'password'
-  view_password_hash null,
-  published_at, created_at, updated_at
-)
-
--- struktur album
-chapters(id, album_id → albums, idx int, title, subtitle, kind, created_at)
-  -- kind: 'cover'|'story'|'journey'|'ceremony'|'tradition'|'family'|'reception'|'film'|'guest'
-  -- unique(album_id, idx)
-
-pages(id, chapter_id → chapters, idx int, layout_key, caption text, created_at)
-  -- layout_key contoh: 'full-bleed'|'duo'|'grid-2x2'|'hero-plus-2'|'quote'|'mosaic-3'
-  -- unique(chapter_id, idx)
-
-page_slots(id, page_id → pages, slot_idx int, photo_id → photos null, crop jsonb)
-  -- unique(page_id, slot_idx)
-
--- media
-photos(
-  id, album_id → albums,
-  source,                         -- 'owner'|'guest'
-  guest_id → guests null,
-  storage_key,                    -- path relatif di storage
-  original_name, mime, bytes, width, height,
-  phash char(16),                 -- perceptual hash untuk dedup
-  sharpness real,                 -- variance of Laplacian
-  brightness real,
-  face_count int,
-  quality_score real,             -- 0..100, hasil ai/quality.js
-  status,                         -- 'processing'|'ready'|'rejected'
-  taken_at timestamptz null,      -- dari EXIF
+`project.db`:
+```sql
+media(
+  id, kind,                    -- 'photo'|'video'
+  source,                      -- 'client'|'guest'
+  guest_id,                    -- NULL kalau dari klien
+  original_path,               -- relatif terhadap folder project
+  original_name, mime, bytes,
+  width, height, duration_ms,  -- duration hanya untuk video
+  taken_at,                    -- dari EXIF, NULL kalau tidak ada
+  phash,                       -- dHash 64-bit hex, foto saja
+  sharpness, brightness, face_count,
+  quality_score,               -- 0..100
+  status,                      -- 'ingesting'|'ready'|'failed'
+  hidden INTEGER DEFAULT 0,    -- disembunyikan operator, bukan dihapus
+  error_message,
   created_at
-)
-  -- index (album_id, quality_score desc), index (album_id, phash)
+);
+CREATE INDEX ON media(quality_score DESC);
+CREATE INDEX ON media(phash);
+CREATE INDEX ON media(taken_at);
 
--- tamu
-guests(id, album_id → albums, name, relation, message text null, ip_hash, created_at)
-  -- relation: 'keluarga_pengantin_pria'|'keluarga_pengantin_wanita'|'teman_kuliah'|
-  --           'teman_kerja'|'tetangga'|'lainnya'
+chapters(id, idx, title, subtitle, kind, created_at);
+-- kind: 'cover'|'story'|'journey'|'ceremony'|'tradition'|'family'|'reception'|'film'|'guest'
+-- UNIQUE(idx)
 
--- audit ringan
-album_views(id, album_id, viewed_at, ip_hash)
+pages(id, chapter_id, idx, layout_key, caption, created_at);
+-- UNIQUE(chapter_id, idx)
+
+slots(id, page_id, slot_idx, media_id, crop_json);
+-- UNIQUE(page_id, slot_idx)
+
+guests(id, name, relation, message, created_at);
+-- relation: 'keluarga_pria'|'keluarga_wanita'|'teman_kuliah'|'teman_kerja'|'tetangga'|'lainnya'
+
+settings(key PRIMARY KEY, value);
+-- wedding_film_media_id, cover_media_id, intake_token, intake_url, dll
 ```
 
-Aturan integritas:
-
-- Hapus album → cascade ke chapters, pages, page_slots, photos, guests.
-- `photos.storage_key` tidak boleh dihapus dari DB tanpa menghapus filenya (buat satu fungsi `deletePhoto()` yang mengurus keduanya dalam transaksi + cleanup file setelah commit).
-- Semua query yang menyentuh album **wajib** difilter `owner_id` dari sesi, kecuali route publik.
-
----
-
-## 6. API
-
-Prefix `/api`. Semua response JSON. Error format seragam:
-
-```json
-{ "error": { "code": "ALBUM_NOT_FOUND", "message": "Album tidak ditemukan." } }
-```
-
-### Auth
-```
-POST   /api/auth/register        { email, password, name }
-POST   /api/auth/login           { email, password }
-POST   /api/auth/logout
-GET    /api/auth/me
-```
-
-### Album (butuh sesi)
-```
-GET    /api/albums
-POST   /api/albums               { bride_name, groom_name, event_date, venue, culture, style }
-GET    /api/albums/:id
-PATCH  /api/albums/:id
-DELETE /api/albums/:id
-POST   /api/albums/:id/publish
-POST   /api/albums/:id/unpublish
-GET    /api/albums/:id/qr           → PNG QR code (juga SVG via ?format=svg)
-```
-
-### Upload & foto
-```
-POST   /api/albums/:id/photos/init   { files:[{name,size,mime}] } → { uploads:[{photo_id, upload_url}] }
-PUT    /api/upload/:token            → binary body, simpan file
-GET    /api/albums/:id/photos        ?source=&status=&sort=quality|date&limit=&cursor=
-DELETE /api/photos/:id
-GET    /api/media/:photoId/:variant  → 'thumb'|'preview'|'full'  (cache-control panjang, immutable)
-```
-
-Upload harus **resumable-friendly sederhana**: init → PUT per file → server memproses async (queue in-process cukup, jangan pasang Redis untuk MVP). Status foto `processing` → `ready`.
-
-### Struktur album
-```
-GET    /api/albums/:id/chapters
-POST   /api/albums/:id/chapters       { title, subtitle, kind, idx }
-PATCH  /api/chapters/:id
-DELETE /api/chapters/:id
-POST   /api/albums/:id/chapters/reorder  { ids: [...] }
-
-POST   /api/chapters/:id/pages        { layout_key, idx }
-PATCH  /api/pages/:id                 { layout_key, caption }
-DELETE /api/pages/:id
-PUT    /api/pages/:id/slots           { slots: [{slot_idx, photo_id, crop}] }
-```
-
-### AI dasar
-```
-POST   /api/albums/:id/curate         → pilih foto terbaik, buat draft chapter+page. Body: { target_pages }
-POST   /api/pages/:id/autolayout      → pilih layout_key yang cocok untuk jumlah & orientasi foto
-GET    /api/albums/:id/duplicates     → grup foto mirip berdasarkan phash
-```
-
-### Publik (tanpa login)
-```
-GET    /api/public/:slug              → album published (struktur + URL media)
-POST   /api/public/:slug/view         → catat view
-GET    /api/public/:slug/guest        → cek apakah guest upload masih dibuka
-POST   /api/public/:slug/guest        { name, relation, message } → { guest_id, upload_token }
-POST   /api/public/:slug/guest/:guestId/photos   → upload foto tamu
-```
-
-**Rate limit wajib** pada semua route `/api/public/*`: 30 req/menit per IP, dan maksimal 20 foto per guest per album.
-
----
-
-## 7. Modul AI dasar (tanpa LLM)
-
-Semua di `server/src/ai/`. Pakai **`sharp`** untuk image processing. Semua jalan di worker thread supaya tidak memblokir event loop.
-
-### `quality.js` — skor kualitas foto
-Untuk tiap foto hitung, lalu simpan ke kolomnya:
-
-1. **Sharpness** — variance of Laplacian. Resize ke lebar 512, grayscale, konvolusi kernel Laplacian `[0,1,0, 1,-4,1, 0,1,0]`, hitung variance. Rendah = blur.
-2. **Brightness** — rata-rata luminance 0..255. Buang yang < 25 (terlalu gelap) atau > 235 (over-exposed).
-3. **Face count** — pakai `@vladmandic/face-api` dengan model TinyFaceDetector (model di-bundle, jangan download saat runtime).
-
-`quality_score` = kombinasi ternormalisasi:
-```
-score = 45 * norm(sharpness) + 20 * brightnessOk + 25 * min(face_count,3)/3 + 10 * resolutionOk
-```
-Kalibrasi bobotnya, jangan hardcode buta — tulis test dengan beberapa foto sampel (sertakan foto blur & gelap buatan di `server/test/fixtures/`).
-
-### `dedup.js` — deteksi foto kembar
-Perceptual hash **dHash 64-bit**: resize 9×8 grayscale, bandingkan pixel bertetangga horizontal → 64 bit → simpan hex 16 char.
-Dua foto dianggap duplikat kalau **Hamming distance ≤ 8**. Kelompokkan, ambil yang `quality_score` tertinggi sebagai wakil.
-
-### `curate.js` — pilih foto untuk album
-Input: semua foto `ready`, target jumlah halaman.
 Aturan:
-- Buang duplikat (sisakan wakil terbaik), buang `quality_score < 35`.
-- Kelompokkan per **waktu** (`taken_at`, gap > 20 menit = momen baru) supaya album mengikuti kronologi acara.
-- Jaga keragaman: maksimal 3 foto per momen, prioritaskan yang `face_count` 2 (kemungkinan foto berdua pengantin) untuk chapter cover/story.
-- Petakan momen → chapter sesuai `albums.culture`. Untuk `jawa`: Siraman → Midodareni → Akad → Panggih → Resepsi.
-
-### `layout.js` — pilih layout halaman
-Input: daftar foto untuk satu halaman.
-Aturan deterministik berdasarkan jumlah + orientasi (portrait/landscape/square):
-```
-1 landscape           → 'full-bleed'
-1 portrait            → 'hero-plus-caption'
-2 apapun              → 'duo'
-3 (1 landscape + 2)   → 'hero-plus-2'
-4 seragam             → 'grid-2x2'
-5-6                   → 'mosaic-3'
-```
-Tulis sebagai tabel keputusan, bukan if-else bercabang panjang.
-
-> **Batas jujur:** ini heuristik, bukan machine learning. Jangan menamai fungsi/UI seolah ada model AI yang dilatih. Di UI, label "AI" boleh dipertahankan sesuai prototipe, tapi di kode dan komentar sebut apa adanya.
+- Operator **tidak pernah menghapus permanen** dari preview — set `hidden=1`. Ada tombol terpisah "Hapus permanen" dengan konfirmasi, dan itu pun tidak menyentuh `originals/`.
+- Semua akses `media_id` di `slots` harus `ON DELETE SET NULL`, jangan cascade — menghapus foto tidak boleh merusak struktur halaman.
 
 ---
 
-## 8. Guest flow
+## 7. Pipeline ingest
 
-1. Pengantin publish album → sistem generate QR ke `https://optimadigitalselaras.com/wedding_album/a/{slug}`.
-2. QR dicetak (kartu meja / standing banner). Endpoint `/api/albums/:id/qr` kembalikan PNG 1024px dan SVG untuk cetak.
-3. Tamu scan → app `guest/` terbuka → layar sesuai `dwa-r2-s4.html`:
-   - S1 QR Landing → S2 Upload → S3 Nama & Relasi → S4 Uploading → S5 Thank You
-4. **Tanpa login.** Identitas tamu = baris di `guests` + token di `sessionStorage`.
-5. Foto tamu masuk `photos` dengan `source='guest'`, langsung diproses `quality.js`, tampil di chapter "Guest Memories".
-6. Pengantin bisa **moderasi**: sembunyikan/hapus foto tamu dari editor.
+Ini bagian paling menentukan apakah alat ini enak dipakai. Operator akan menyeret 300–800 file sekaligus.
 
-Batasan yang wajib diterapkan: maks 20 foto/tamu, maks 15 MB/foto, hanya `image/jpeg|png|heic|webp`, tolak selain itu dengan pesan Indonesia yang jelas.
+### Foto
+1. Salin ke `originals/` dengan nama asli dipertahankan (tambah suffix kalau bentrok)
+2. Baca EXIF: `taken_at`, orientasi, dimensi
+3. Auto-rotate sesuai EXIF, lalu buat varian ke `derived/`:
+   - `thumb` 400px lebar, WebP q75
+   - `preview` 1200px, WebP q82
+   - `full` 2400px, WebP q86 + JPEG fallback q88
+4. Hitung `sharpness`, `brightness`, `face_count`, `phash`, `quality_score` (§8)
+5. `status` → `ready`
 
----
+### Video (satu wedding film per album)
+1. Salin ke `originals/`
+2. Probe dengan `ffprobe`: durasi, resolusi, codec
+3. Transcode ke `derived/`:
+   - `film-1080.mp4` — H.264 High, CRF 21, AAC 128k, `-movflags +faststart`
+   - `film-720.mp4` — H.264 Main, CRF 23, untuk koneksi lemot
+   - `poster.jpg` — frame di detik ke-3 (atau 10% durasi kalau video pendek)
+4. Simpan `wedding_film_media_id` di `settings`
 
-## 9. Editor & Viewer
-
-**Editor** (`web/`, desktop) — ikuti `dwa-r2-s2.html` persis:
-- Kiri: daftar chapter, drag untuk reorder, indikator progres per chapter.
-- Tengah: **live mobile preview** — render viewer sungguhan di dalam frame HP, bukan gambar statis.
-- Kanan: tab AI Tools / Layouts / Photos / Story.
-- Autosave dengan debounce 800 ms, indikator "All changes saved" seperti di prototipe.
-- Undo/redo minimal 20 langkah (simpan patch di memori, tidak perlu persist).
-
-**Viewer** (`guest/` atau route publik di `web/`) — ikuti `dwa-r2-s3.html`:
-- Swipe/keyboard antar halaman, preload halaman berikutnya.
-- Gambar `srcset` 3 ukuran, lazy load, `content-visibility:auto`.
-- Harus enak dibuka di HP kelas menengah dengan 4G lemot. **Target: LCP < 2.5 s di Slow 4G.**
-
----
-
-## 10. Deployment
-
-NAS di `192.168.1.20` (host Windows, Docker Desktop). Sudah ada container `optima-web` (nginx) dengan mount:
-
-```
-C:/Users/NAS GIOS/websites/optimadigitalselaras  →  /usr/share/nginx/html
-```
-
-Situs statis prototipe saat ini dilayani di `optimadigitalselaras.com/wedding_album/`.
-
-Buat `docker/docker-compose.yml` dengan tiga service:
-
-```yaml
-services:
-  dwa-db:      # postgres:16-alpine, volume ./data/pg
-  dwa-server:  # build Dockerfile.server, port internal 3000, volume ./data/media
-  # nginx yang sudah ada dipakai sebagai reverse proxy
-```
-
-Tambahkan blok proxy ke nginx yang sudah berjalan (`docker/nginx-wedding.conf`, untuk di-include):
-
-```nginx
-location /wedding_album/api/ { proxy_pass http://dwa-server:3000/api/; ... }
-location /wedding_album/a/   { try_files $uri /wedding_album/guest/index.html; }
-location /wedding_album/app/ { try_files $uri /wedding_album/app/index.html; }
-```
-
-Build frontend dengan `base: '/wedding_album/app/'` dan `'/wedding_album/guest/'`.
-
-**Env** (`.env.example` wajib dibuat, `.env` masuk `.gitignore`):
-```
-DATABASE_URL=
-JWT_SECRET=
-MEDIA_ROOT=/data/media
-PUBLIC_BASE_URL=https://optimadigitalselaras.com/wedding_album
-MAX_UPLOAD_MB=15
-GUEST_MAX_PHOTOS=20
-```
-
-Sediakan `npm run deploy` yang: build → upload ke NAS via SFTP → `docker compose up -d --build`. Kredensial dibaca dari env/`.env`, **jangan pernah di-hardcode atau di-commit**.
-
-Backup: satu script `scripts/backup.sh` yang `pg_dump` + tar `/data/media` ke folder bertanggal.
+### Aturan eksekusi
+- Jalankan di **worker thread pool**, jumlah worker = `cpus().length - 1`, minimal 1
+- Progress real-time ke UI via **SSE** (`GET /api/ingest/stream`), bukan polling
+- **Bisa dilanjutkan**: kalau proses mati di tengah, jalankan lagi → lewati yang sudah `ready`, ulangi yang `ingesting`/`failed`
+- File yang gagal → `status='failed'` + `error_message`, **jangan hentikan batch**. Tampilkan daftar gagal di akhir.
+- Format diterima: `jpg jpeg png heic heif webp tif tiff` (foto), `mp4 mov mkv avi` (video). HEIC dari iPhone **wajib** jalan — pakai `sharp` dengan libheif, kalau environment tidak mendukung, fallback ke ffmpeg.
 
 ---
 
-## 11. Milestone
+## 8. Modul AI (heuristik lokal, tanpa LLM)
 
-Kerjakan berurutan. **Jangan mulai milestone berikutnya sebelum acceptance criteria terpenuhi.** Commit di akhir tiap milestone dengan pesan `feat(Mx): ...`.
+Semua di `studio/server/src/ai/`. Karena jalan di localhost, tidak ada batas waktu request dan tidak ada biaya API — boleh lebih teliti daripada kalau di server.
+
+### `quality.js`
+- **Sharpness** — variance of Laplacian: resize lebar 512 → grayscale → konvolusi `[0,1,0, 1,-4,1, 0,1,0]` → variance. Rendah = blur.
+- **Brightness** — rata-rata luminance 0..255. Tandai buruk kalau < 25 atau > 235.
+- **Face count** — `@vladmandic/face-api`, model TinyFaceDetector, **model di-bundle di repo**, tidak diunduh saat runtime.
+
+```
+quality_score = 45*norm(sharpness) + 20*brightnessOk + 25*min(faces,3)/3 + 10*resolutionOk
+```
+Kalibrasi bobotnya pakai fixture nyata di `studio/server/test/fixtures/` (sertakan foto blur & gelap buatan). Jangan hardcode tanpa uji.
+
+### `dedup.js`
+dHash 64-bit: resize 9×8 grayscale → bandingkan pixel bertetangga horizontal → 64 bit → hex 16 char.
+Duplikat kalau **Hamming distance ≤ 8**. Kelompokkan, wakil = `quality_score` tertinggi.
+Fotografer pernikahan menembak burst — ini akan memangkas 30–50% file. Wajib benar.
+
+### `curate.js`
+Input: semua media `ready` & tidak `hidden`. Output: draft chapter + page + slot.
+- Buang duplikat (sisakan wakil), buang `quality_score < 35`
+- Kelompokkan per **momen** pakai `taken_at`, jeda > 20 menit = momen baru → album jadi kronologis
+- Maksimal 3 foto per momen, jaga keragaman
+- Foto dengan `face_count == 2` diprioritaskan untuk cover & chapter story
+- Petakan momen → chapter sesuai `culture`. Jawa: Siraman → Midodareni → Akad → Panggih → Resepsi
+- Kalau `taken_at` kosong di sebagian besar file, fallback ke urutan nama file
+
+### `layout.js`
+Tabel keputusan berdasarkan jumlah + orientasi, **bukan** if-else bercabang:
+```
+1 landscape          → 'full-bleed'
+1 portrait           → 'hero-plus-caption'
+2 apa pun            → 'duo'
+3 (1 landscape + 2)  → 'hero-plus-2'
+4 seragam            → 'grid-2x2'
+5-6                  → 'mosaic-3'
+```
+
+> **Sebut apa adanya di kode.** Ini heuristik, bukan model terlatih. Label "AI" di UI boleh dipertahankan sesuai prototipe, tapi nama fungsi, komentar, dan `docs/` harus jujur.
+
+---
+
+## 9. Preview & editor — jantung aplikasi
+
+Ikuti `dwa-r2-s2.html`. Ini layar yang paling lama dipakai operator, jadi paling menentukan.
+
+- **Kiri**: daftar chapter, drag-reorder, indikator progres
+- **Tengah**: live mobile preview — render **template album terbit yang sesungguhnya** di dalam frame HP, bukan tiruan. Satu template, dipakai preview dan export. Kalau berbeda, operator akan tertipu.
+- **Kanan**: tab AI Tools / Layouts / Photos / Story
+
+Yang wajib ada di preview (poin 5 konsep):
+- Klik foto di preview → langsung terpilih di panel kanan
+- **Sembunyikan** foto (satu klik, bisa di-undo) dan **ganti** foto dari grid kandidat
+- Geser posisi foto antar slot dengan drag
+- Ganti layout halaman, tambah/hapus halaman
+- **Undo/redo minimal 30 langkah** — operator bekerja cepat dan akan salah klik. Simpan patch di memori.
+- Autosave debounce 800 ms + indikator "Semua perubahan tersimpan" seperti prototipe
+
+Grid kandidat harus bisa disortir: skor kualitas, waktu, jumlah wajah, sumber (klien/tamu), dan filter "hanya yang belum dipakai".
+
+---
+
+## 10. Export
+
+`POST /api/export` → menghasilkan `data/projects/<slug>/export/`:
+
+```
+export/
+├─ index.html          # self-contained, path relatif semua
+├─ assets/
+│  ├─ album.css
+│  ├─ album.js         # navigasi halaman, lazy load
+│  └─ fonts/           # fallback lokal kalau Google Fonts diblokir
+├─ media/
+│  ├─ p001-thumb.webp  p001-preview.webp  p001-full.webp  p001-full.jpg
+│  └─ film-1080.mp4    film-720.mp4       poster.jpg
+├─ album.json          # data album, supaya bisa di-rebuild tanpa Studio
+└─ MANIFEST.txt        # jumlah file, total ukuran, tanggal export, versi builder
+```
+
+Ketentuan:
+- Hanya media yang **dipakai** di halaman ikut diexport. Jangan bawa 800 foto mentah.
+- `srcset` 3 ukuran + `loading="lazy"` + `content-visibility:auto`
+- Video pakai `preload="none"` dengan poster — jangan pernah autoload
+- **Target: LCP < 2,5 detik di Slow 4G**, dan total bundle album 12 halaman < 25 MB
+- Sediakan `npm run export -- --slug=<slug> --zip` untuk menghasilkan `.zip` sekalian
+
+---
+
+## 11. Guest Intake
+
+Service terpisah di `intake/`, container Docker di NAS. **Tipis sengaja** — tidak ada editor, tidak ada preview, tidak menyimpan apa pun selain foto tamu dan identitasnya.
+
+Layar mengikuti `dwa-r2-s4.html`: QR Landing → Upload → Nama & Relasi → Uploading → Terima Kasih.
+
+- URL per album: `https://<host>/i/<slug>`, dibuka dari QR
+- **Tanpa login.** Identitas tamu = baris `guests` + token di `sessionStorage`
+- Batas: maks **20 foto per tamu**, **15 MB per file**, hanya `image/jpeg|png|heic|webp`
+- Rate limit **30 request/menit per IP**
+- Jendela waktu: `opens_at` / `closes_at` per album. Di luar jendela → halaman sopan "Pengumpulan foto sudah ditutup"
+- Tolakan harus berpesan Indonesia yang jelas, bukan kode error
+
+### Sinkronisasi ke Studio
+```
+GET  /api/intake/pull        # Studio menarik foto tamu baru dari intake
+POST /api/intake/close       # Studio menutup jendela dari jarak jauh
+```
+Studio menyimpan `intake_url` + `intake_token` di `settings`. Tarikan bersifat **incremental** (berdasarkan `created_at` terakhir) dan **idempoten** — menarik dua kali tidak menggandakan foto. Setelah masuk, foto tamu diproses pipeline yang sama dengan `source='guest'`.
+
+Setelah album diexport dan diserahkan, container intake untuk album itu **boleh dimatikan**. Tidak ada yang hilang — semua sudah ada di Studio.
+
+---
+
+## 12. API Studio
+
+Prefix `/api`. Tanpa auth (localhost). Error seragam:
+```json
+{ "error": { "code": "PROJECT_NOT_FOUND", "message": "Project tidak ditemukan." } }
+```
+
+```
+GET    /api/projects                    POST   /api/projects
+GET    /api/projects/:slug              PATCH  /api/projects/:slug
+DELETE /api/projects/:slug              # arsip, bukan hapus file
+
+POST   /api/:slug/ingest                # { paths:[...] } folder lokal / drag-drop
+GET    /api/:slug/ingest/stream         # SSE progress
+GET    /api/:slug/media                 ?kind=&source=&hidden=&sort=&unused=
+PATCH  /api/:slug/media/:id             # { hidden, crop }
+DELETE /api/:slug/media/:id             # hapus permanen, konfirmasi wajib
+GET    /api/:slug/duplicates
+
+POST   /api/:slug/curate                # { target_pages }
+POST   /api/:slug/pages/:id/autolayout
+
+GET    /api/:slug/chapters              POST   /api/:slug/chapters
+PATCH  /api/:slug/chapters/:id          DELETE /api/:slug/chapters/:id
+POST   /api/:slug/chapters/reorder
+POST   /api/:slug/chapters/:id/pages    PATCH  /api/:slug/pages/:id
+DELETE /api/:slug/pages/:id             PUT    /api/:slug/pages/:id/slots
+
+POST   /api/:slug/export                GET    /api/:slug/export/status
+GET    /api/:slug/intake/qr             # PNG 1024px + ?format=svg untuk cetak
+POST   /api/:slug/intake/pull
+```
+
+---
+
+## 13. Milestone
+
+Commit di akhir tiap milestone: `feat(Mx): ...`. **Jangan tandai selesai kalau test merah atau fitur separuh.**
 
 ### M0 — Fondasi
-Pindahkan 5 HTML prototipe ke `prototypes/`. Scaffold `server/`, `web/`, `guest/`. Docker compose jalan lokal. Migration pertama (users, albums). Health check `GET /api/health`.
-**Selesai kalau:** `docker compose up` → `/api/health` balas `{ok:true}`, dan `npm test` hijau.
+Pindahkan 5 prototipe ke `prototypes/`. Scaffold `studio/server` + `studio/web`. SQLite + migration runner. `GET /api/health`. `npm start` → buka `localhost:4000`.
+**Selesai kalau:** `npm start` jalan dari clone bersih tanpa setup manual, `/api/health` balas `{ok:true}`, `npm test` hijau.
 
-### M1 — Auth + album kosong
-Register, login, logout, sesi cookie. CRUD album. Halaman React: login, daftar album, form buat album (ikuti layar Album Setup di `dwa-r2-s1.html`).
-**Selesai kalau:** bisa daftar → login → buat album → refresh browser masih login → logout.
+### M1 — Project & klien
+CRUD project. Layar buat project baru mengikuti Album Setup di `dwa-r2-s1.html` (nama klien, pengantin, tanggal, venue, adat, style). Daftar project di layar awal.
+**Selesai kalau:** buat 3 project, tutup app, buka lagi, ketiganya masih ada dengan folder `data/projects/<slug>/` lengkap.
 
-### M2 — Upload & pipeline foto
-Init upload, PUT file, simpan, generate 3 varian (thumb 400 / preview 1200 / full 2400) via sharp, baca EXIF, hitung sharpness/brightness/phash/face_count, status `processing`→`ready`.
-**Selesai kalau:** upload 50 foto sekaligus tidak memblokir server, semua jadi `ready`, `GET /api/albums/:id/photos` mengembalikan skor, dan file varian ada di disk.
+### M2 — Ingest foto & video
+Pipeline §7 lengkap: salin, EXIF, varian, transcode film, worker pool, SSE progress, resumable, laporan gagal.
+**Selesai kalau:** drop **500 foto + 1 video 3 menit** → semua `ready` tanpa memblokir UI, progress jalan real-time, matikan proses di tengah lalu jalankan lagi → lanjut bukan mengulang, dan `originals/` byte-identical dengan file sumber.
 
-### M3 — Struktur album + editor
-Chapter & page CRUD, reorder, slot assignment. Editor React sesuai `dwa-r2-s2.html`, autosave, live preview.
-**Selesai kalau:** bisa menyusun album 8 chapter / 12 halaman sepenuhnya lewat UI, refresh → struktur tetap.
+### M3 — AI kurasi
+`quality.js`, `dedup.js`, `curate.js`, `layout.js` + endpoint. Test dengan fixture.
+**Selesai kalau:** 500 foto mentah → `POST /curate` → keluar draft 8 chapter / 12 halaman yang urut kronologis, tanpa foto blur, tanpa duplikat dalam satu halaman. Waktu proses < 90 detik.
 
-### M4 — Viewer
-Route publik `/a/:slug` sesuai `dwa-r2-s3.html`. Publish/unpublish. Privacy unlisted & password.
-**Selesai kalau:** album published bisa dibuka di HP tanpa login, Lighthouse mobile performance ≥ 85.
+### M4 — Preview & editor
+Layar utama sesuai `dwa-r2-s2.html`. Live preview memakai template export yang sama. Sembunyikan/ganti/geser foto, ganti layout, undo-redo 30 langkah, autosave.
+**Selesai kalau:** operator bisa menyusun album 12 halaman sepenuhnya lewat UI tanpa menyentuh database, undo mengembalikan 30 langkah dengan benar, dan refresh browser tidak kehilangan apa pun.
 
-### M5 — Guest flow + QR
-App `guest/` 5 layar sesuai `dwa-r2-s4.html`. QR generator. Rate limit. Moderasi foto tamu di editor.
-**Selesai kalau:** scan QR dari HP lain → upload 3 foto → muncul di chapter Guest Memories → pengantin bisa menyembunyikannya.
+### M5 — Export statis
+Builder §10. Portabilitas §4 dipenuhi.
+**Selesai kalau:** hasil export dibuka **tiga cara** — `file://` langsung, dari `http://localhost:8080/`, dan dari `http://localhost:8080/sub/folder/dalam/` — ketiganya tampil identik tanpa mengubah satu baris pun. Lighthouse mobile performance ≥ 90.
 
-### M6 — AI dasar
-`quality.js`, `dedup.js`, `curate.js`, `layout.js` + endpoint `/curate`, `/autolayout`, `/duplicates`. Tombolnya sudah ada di panel kanan editor.
-**Selesai kalau:** upload 200 foto mentah → tekan "Regenerate Layout" → keluar draft album 8 chapter yang urut kronologis, tanpa foto blur dan tanpa duplikat.
+### M6 — Guest Intake
+Service `intake/` + Docker. 5 layar sesuai `dwa-r2-s4.html`. QR generator. Rate limit. Jendela waktu. Pull incremental ke Studio.
+**Selesai kalau:** scan QR dari HP lain → upload 3 foto → `POST /intake/pull` di Studio → 3 foto masuk sebagai `source='guest'` dan sudah diproses. Pull kedua kalinya tidak menggandakan.
 
-### M7 — Deploy & hardening
-Deploy ke NAS, nginx config, backup script, `.env.example`, README cara setup dari nol.
-**Selesai kalau:** `optimadigitalselaras.com/wedding_album/app/` bisa dipakai membuat album asli dari awal sampai publish, dari komputer lain.
+### M7 — Serah terima
+Script deploy album ke target (NAS via SFTP, atau folder mana pun). `npm run backup` (tar project + db). README lengkap dari nol. `docs/decisions.md`.
+**Selesai kalau:** dari komputer bersih — clone repo, `npm install`, `npm start`, buat project, ingest foto, curate, edit, export, deploy — seluruhnya jalan mengikuti README tanpa perlu bertanya.
 
 ---
 
-## 12. Aturan kerja
+## 14. Aturan kerja
 
 **Lakukan:**
-- Baca file prototipe yang relevan **sebelum** membuat komponen — ambil warna, ukuran, teks, dan struktur dari sana.
-- Tulis test untuk setiap fungsi di `ai/` dan setiap route yang mengubah data.
-- Validasi semua input dengan `zod` di middleware, jangan di dalam handler.
-- Query SQL parameterized. Tidak ada string concatenation ke SQL, sekalipun untuk nilai internal.
-- Pesan error yang dilihat user dalam Bahasa Indonesia; log internal boleh Inggris.
-- Commit kecil dan sering, satu perubahan logis per commit.
-- Kalau ada keputusan desain yang ambigu, tulis di `docs/decisions.md` lalu lanjut — jangan berhenti menunggu.
+- Baca file prototipe yang relevan **sebelum** membuat komponen. Ambil warna, ukuran, teks, struktur dari sana.
+- Satu template album, dipakai preview **dan** export. Jangan pernah menulis dua.
+- Test untuk setiap fungsi di `ai/` dan `pipeline/`, dan setiap route yang mengubah data.
+- Validasi input dengan `zod` di middleware, bukan di dalam handler.
+- Query SQLite parameterized. Tidak ada string concatenation ke SQL.
+- Pesan ke operator dalam Bahasa Indonesia; log internal boleh Inggris.
+- Semua path lewat `paths.js`. Jangan tebar string path di mana-mana.
+- Commit kecil, satu perubahan logis per commit.
+- Keputusan ambigu → tulis di `docs/decisions.md`, lalu lanjut. Jangan berhenti menunggu jawaban.
 
 **Jangan:**
-- Jangan menambah dependency di luar yang disebut tanpa alasan yang ditulis di `docs/decisions.md`.
+- Jangan menyentuh isi `originals/` setelah ingest. Sekali tulis, sesudah itu read-only.
+- Jangan menambah dependency di luar yang disebut tanpa alasan tertulis.
 - Jangan mengubah desain visual prototipe "supaya lebih bagus".
-- Jangan pakai `localStorage` untuk data yang harus persist di server.
-- Jangan menaruh secret di kode atau di commit.
-- Jangan menandai milestone selesai kalau test merah atau fitur cuma separuh.
-- Jangan bikin foto placeholder berupa gradient di produk jadi — itu hanya untuk prototipe.
+- Jangan pakai gradient CSS sebagai pengganti foto di produk jadi — itu hanya untuk prototipe.
+- Jangan menaruh path absolut atau base URL di hasil export.
+- Jangan menaruh secret di kode atau di commit. `.env` masuk `.gitignore`, sediakan `.env.example`.
+- Jangan menghapus file media milik operator tanpa konfirmasi eksplisit.
 
 ---
 
-## 13. Definition of done
+## 15. Selesai kalau
 
-Aplikasi dianggap jadi kalau seseorang bisa, tanpa bantuan:
+Operator bisa, sendirian, tanpa membuka terminal selain `npm start`:
 
-1. Daftar akun, buat album, isi data pengantin & adat.
-2. Upload 200+ foto dari HP atau laptop.
-3. Menekan satu tombol dan mendapat draft album yang masuk akal.
-4. Merapikan chapter, mengganti foto, menulis narasi.
-5. Publish, mencetak QR, dan tamu bisa menyumbang foto tanpa install apa pun.
-6. Membuka album di HP dan enak dilihat.
-7. Semua ini bertahan setelah server restart.
+1. Membuat project baru untuk klien A
+2. Menyeret 500 foto + 1 wedding film, menunggu, dan semuanya terproses
+3. Menekan satu tombol dan mendapat draft album yang masuk akal secara kronologis
+4. Merapikan di preview — membuang yang jelek, menukar, menggeser, mengganti layout
+5. Mencetak QR agar tamu menyumbang foto, lalu menariknya masuk
+6. Export dan mendapat satu folder yang bisa ditaruh di hosting mana pun
+7. Mengulang semuanya untuk klien B tanpa yang lama terganggu
 
 ---
 
-**Mulai dari M0. Laporkan setiap milestone selesai dengan ringkasan singkat apa yang dibangun dan hasil acceptance test-nya.**
+**Mulai dari M0.** Setiap milestone selesai, laporkan singkat: apa yang dibangun, hasil acceptance test, dan apa yang perlu diputuskan sebelum lanjut.
