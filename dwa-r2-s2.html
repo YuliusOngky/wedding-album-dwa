@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>DWA — Desktop Album Editor</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
+/* ── TOKENS ─────────────────────────── */
+:root{
+  --ink:#0D0C0A;--espresso:#1C1917;--bark:#2C2420;
+  --stone:#6B5E52;--muted:#9C8C80;--muted2:#B8A898;
+  --champagne:#E8DCD0;--ivory:#F7F2EA;--linen:#F0EBE2;
+  --panel:#F5F0E8;--canvas:#E6DFD4;
+  --gold:#C9A96E;--gold-lt:#DFC090;--gold-dk:#A08848;
+  --white:#FBF8F4;--success:#7A9E7E;--warn:#C97A3E;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;-webkit-font-smoothing:antialiased}
+
+/* ══════════════════════════════════════
+   DESKTOP EDITOR SHELL
+   ══════════════════════════════════════ */
+.editor{display:flex;flex-direction:column;height:100vh;background:var(--canvas)}
+
+/* ── TOP BAR ─────────────────────────── */
+.topbar{
+  height:52px;background:var(--espresso);
+  display:flex;align-items:center;padding:0 18px;
+  gap:0;flex-shrink:0;
+  border-bottom:1px solid rgba(201,169,110,0.12);
+  position:relative;z-index:50;
+}
+.tb-logo{
+  font-family:'Cormorant Garamond',serif;font-size:16px;
+  font-weight:400;letter-spacing:0.08em;color:var(--gold);
+  margin-right:20px;white-space:nowrap;
+}
+.tb-sep{width:1px;height:24px;background:rgba(255,255,255,0.1);margin:0 16px}
+.tb-album{display:flex;flex-direction:column;gap:1px;flex:1}
+.tb-album-name{font-size:13px;font-weight:400;color:var(--champagne);letter-spacing:0.02em}
+.tb-album-meta{font-size:10px;color:var(--muted);letter-spacing:0.04em}
+.tb-status{
+  display:flex;align-items:center;gap:6px;
+  font-size:10px;color:var(--muted);padding:4px 10px;
+  border-radius:20px;background:rgba(255,255,255,0.05);
+  margin-right:12px;
+}
+.tb-status-dot{width:6px;height:6px;border-radius:50%;background:var(--success);flex-shrink:0;animation:pulse-dot 2.5s ease-in-out infinite}
+@keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:0.4}}
+.tb-btn{
+  height:32px;padding:0 14px;border-radius:3px;border:none;
+  font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;
+  letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;
+  display:flex;align-items:center;gap:6px;transition:all 0.15s;
+}
+.tb-btn-ghost{background:rgba(255,255,255,0.07);color:var(--champagne)}
+.tb-btn-ghost:hover{background:rgba(255,255,255,0.12)}
+.tb-btn-primary{background:var(--gold);color:var(--ink)}
+.tb-btn-primary:hover{background:var(--gold-lt)}
+.tb-mode-tabs{display:flex;gap:2px;margin-right:16px}
+.mode-tab{
+  height:32px;padding:0 12px;border-radius:3px;
+  font-size:10.5px;font-weight:400;letter-spacing:0.06em;
+  color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:5px;
+  background:none;border:none;transition:all 0.15s;
+}
+.mode-tab:hover{color:var(--champagne);background:rgba(255,255,255,0.05)}
+.mode-tab.on{color:var(--gold);background:rgba(201,169,110,0.1)}
+.mode-tab svg{width:12px;height:12px}
+
+/* ── EDITOR BODY ─────────────────────── */
+.editor-body{flex:1;display:flex;overflow:hidden}
+
+/* ── LEFT: CHAPTER PANEL ─────────────── */
+.chapter-panel{
+  width:222px;background:var(--panel);
+  border-right:1px solid rgba(0,0,0,0.09);
+  display:flex;flex-direction:column;overflow:hidden;
+  flex-shrink:0;
+}
+.cp-header{
+  padding:14px 16px 10px;border-bottom:1px solid rgba(0,0,0,0.07);
+  flex-shrink:0;
+}
+.cp-header-label{
+  font-size:8px;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;
+}
+.cp-album-style{
+  display:flex;align-items:center;gap:6px;
+  font-size:11px;color:var(--stone);
+}
+.cp-style-badge{
+  padding:2px 7px;border-radius:10px;font-size:9px;
+  background:rgba(201,169,110,0.15);color:var(--gold-dk);
+}
+.chapter-list{flex:1;overflow-y:auto;padding:8px 0}
+.chapter-list::-webkit-scrollbar{width:4px}
+.chapter-list::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.12);border-radius:2px}
+.chapter-item{
+  padding:8px 16px;cursor:pointer;display:flex;align-items:center;gap:8px;
+  border-left:2px solid transparent;transition:all 0.15s;
+  position:relative;
+}
+.chapter-item:hover{background:rgba(0,0,0,0.04)}
+.chapter-item.on{
+  background:rgba(201,169,110,0.09);border-left-color:var(--gold);
+}
+.ci-num{
+  font-size:9px;color:var(--muted);min-width:14px;text-align:right;
+  font-variant-numeric:tabular-nums;
+}
+.ci-info{flex:1;min-width:0}
+.ci-name{font-size:11.5px;font-weight:400;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chapter-item.on .ci-name{color:var(--gold-dk);font-weight:500}
+.ci-sub{font-size:9.5px;color:var(--muted);margin-top:1px}
+.ci-status{flex-shrink:0}
+.ci-done{color:var(--success);width:13px;height:13px}
+.ci-active{
+  width:8px;height:8px;border-radius:50%;
+  background:var(--gold);animation:pulse-dot 2s ease-in-out infinite;
+}
+.cp-page-nav{
+  padding:10px 16px;border-top:1px solid rgba(0,0,0,0.07);
+  flex-shrink:0;
+}
+.cp-page-label{font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.cp-page-dots{display:flex;gap:3px;flex-wrap:wrap}
+.pg-dot{width:7px;height:7px;border-radius:50%;background:rgba(0,0,0,0.15);cursor:pointer;transition:all 0.15s}
+.pg-dot:hover{background:rgba(0,0,0,0.3)}
+.pg-dot.on{background:var(--gold);width:14px;border-radius:4px}
+.cp-ai-badge{
+  margin:8px 16px 0;padding:8px 10px;
+  background:rgba(201,169,110,0.08);border-radius:5px;
+  border:1px solid rgba(201,169,110,0.2);
+  font-size:9.5px;line-height:1.5;color:var(--stone);
+}
+.cp-ai-badge strong{color:var(--gold-dk)}
+
+/* ── CENTER: PREVIEW PANEL ───────────── */
+.center-panel{
+  flex:1;background:var(--canvas);
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  gap:14px;position:relative;overflow:hidden;
+}
+/* Canvas grid texture */
+.center-panel::before{
+  content:'';position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px);
+  background-size:24px 24px;
+  pointer-events:none;
+}
+.preview-label{
+  font-size:9.5px;letter-spacing:0.14em;text-transform:uppercase;
+  color:var(--stone);display:flex;align-items:center;gap:8px;position:relative;z-index:1;
+}
+.preview-label::before,.preview-label::after{content:'';flex:1;height:1px;background:rgba(0,0,0,0.1);width:40px}
+
+/* Phone preview frame */
+.preview-phone-wrap{position:relative;z-index:1}
+.preview-phone{
+  width:258px;border-radius:36px;padding:11px;
+  background:linear-gradient(145deg,#3A2E24,#1E1A16 50%,#0E0C0A);
+  box-shadow:0 0 0 1px rgba(255,255,255,0.05),0 30px 80px rgba(0,0,0,0.6),inset 0 1px 0 rgba(255,255,255,0.07);
+  position:relative;
+}
+.preview-phone::before{
+  content:'';position:absolute;left:-2px;top:72px;
+  width:2px;height:22px;background:#2A221A;border-radius:2px 0 0 2px;
+  box-shadow:0 34px 0 #2A221A;
+}
+.preview-phone::after{
+  content:'';position:absolute;right:-2px;top:94px;
+  width:2px;height:44px;background:#2A221A;border-radius:0 2px 2px 0;
+}
+.preview-dyn{
+  position:absolute;top:11px;left:50%;transform:translateX(-50%);
+  width:82px;height:24px;background:#080604;border-radius:14px;
+  z-index:10;pointer-events:none;
+}
+.preview-screen{
+  width:236px;height:419px;border-radius:26px;
+  overflow:hidden;background:#080604;position:relative;
+}
+
+/* ── ALBUM PAGE CONTENT ──────────────── */
+/* Pages that show in the preview */
+.album-page{
+  width:236px;height:419px;
+  position:absolute;top:0;left:0;
+  display:none;flex-direction:column;
+  overflow:hidden;
+}
+.album-page.on{display:flex}
+
+/* Status bar inside preview */
+.pv-sb{
+  position:absolute;top:0;left:0;right:0;height:32px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:8px 14px 0;z-index:10;font-size:10px;font-weight:500;
+  letter-spacing:0.02em;
+}
+
+/* ── PAGE: COVER ─────────────────────── */
+.pg-cover{background:#080604}
+.pg-cover-photo{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(circle 14px at 20% 18%,rgba(255,210,130,0.55) 0%,transparent 100%),
+    radial-gradient(circle 20px at 78% 10%,rgba(255,195,108,0.42) 0%,transparent 100%),
+    radial-gradient(circle 10px at 55% 25%,rgba(255,228,158,0.35) 0%,transparent 100%),
+    radial-gradient(circle 16px at 88% 38%,rgba(255,190,95,0.28) 0%,transparent 100%),
+    radial-gradient(circle 24px at 60% 28%,rgba(185,142,68,0.2) 0%,transparent 100%),
+    linear-gradient(162deg,#A07838 0%,#682E14 28%,#2E1408 52%,#120A04 78%,#060402 100%);
+}
+.pg-cover-overlay{
+  position:absolute;inset:0;
+  background:linear-gradient(to bottom,rgba(8,6,4,0.15) 0%,rgba(8,6,4,0) 30%,rgba(8,6,4,0) 48%,rgba(8,6,4,0.6) 72%,rgba(8,6,4,0.96) 100%);
+}
+.pg-cover-content{
+  position:absolute;bottom:0;left:0;right:0;
+  padding:0 18px 20px;text-align:center;
+}
+.pg-cover-eyebrow{font-size:7px;letter-spacing:0.22em;text-transform:uppercase;color:rgba(201,169,110,0.8);margin-bottom:8px}
+.pg-cover-names{
+  font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:300;
+  color:rgba(251,248,244,0.96);line-height:1.1;margin-bottom:6px;
+}
+.pg-cover-amp{font-style:italic;color:var(--gold-lt)}
+.pg-cover-date{font-size:9px;letter-spacing:0.16em;color:rgba(232,220,208,0.65);margin-bottom:3px}
+.pg-cover-loc{font-size:9px;letter-spacing:0.1em;color:rgba(201,169,110,0.55)}
+.pg-cover-scroll{font-size:8px;letter-spacing:0.08em;color:rgba(255,255,255,0.3);margin-top:10px}
+/* Couple SVG in cover preview */
+.pg-cover-svg{position:absolute;bottom:30%;left:50%;transform:translateX(-50%);width:120px;height:130px;opacity:0.88}
+
+/* ── PAGE: OUR STORY ─────────────────── */
+.pg-story{background:var(--white)}
+.pg-story-top{
+  height:55%;background:
+    radial-gradient(circle 12px at 15% 20%,rgba(255,210,130,0.5) 0%,transparent 100%),
+    radial-gradient(circle 18px at 80% 12%,rgba(255,195,108,0.38) 0%,transparent 100%),
+    linear-gradient(155deg,#C49060 0%,#7A4020 40%,#3A1808 70%,#180C06 100%);
+  position:relative;flex-shrink:0;
+}
+.pg-story-top-overlay{
+  position:absolute;inset:0;
+  background:linear-gradient(to bottom,rgba(251,248,244,0) 60%,rgba(251,248,244,1) 100%);
+}
+.pg-story-body{
+  padding:0 16px 14px;display:flex;flex-direction:column;
+  justify-content:space-between;flex:1;
+}
+.pg-story-ch{font-size:7px;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold-dk);margin-bottom:6px}
+.pg-story-quote{
+  font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:300;
+  line-height:1.3;color:var(--ink);font-style:italic;margin-bottom:8px;
+}
+.pg-story-body-txt{font-size:9.5px;line-height:1.6;color:var(--stone);margin-bottom:8px}
+.pg-story-nav{display:flex;justify-content:space-between;align-items:center}
+.pg-nav-btn{font-size:8.5px;letter-spacing:0.08em;color:var(--muted);cursor:pointer}
+.pg-nav-btn.active{color:var(--gold-dk)}
+.pg-ch-dots{display:flex;gap:3px}
+.pg-ch-dot{width:4px;height:4px;border-radius:50%;background:rgba(0,0,0,0.15)}
+.pg-ch-dot.on{background:var(--gold);width:10px;border-radius:2px}
+
+/* ── PAGE: THE JOURNEY ───────────────── */
+/* Layout A: Cinematic */
+.pg-journey-a{background:#060404;color:var(--white)}
+.pja-photo{
+  flex:1;position:relative;overflow:hidden;
+  background:
+    radial-gradient(circle 10px at 10% 14%,rgba(255,210,130,0.52) 0%,transparent 100%),
+    radial-gradient(circle 16px at 82% 8%,rgba(255,193,105,0.4) 0%,transparent 100%),
+    radial-gradient(circle 8px at 58% 22%,rgba(255,228,158,0.32) 0%,transparent 100%),
+    linear-gradient(158deg,#9A6030 0%,#5A2A10 32%,#281208 58%,#0E0804 100%);
+}
+.pja-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(6,4,4,0.1) 0%,rgba(6,4,4,0.0) 50%,rgba(6,4,4,0.85) 100%)}
+.pja-text{
+  flex-shrink:0;padding:10px 16px 14px;
+  background:#060404;
+}
+.pja-ch{font-size:7px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(201,169,110,0.7);margin-bottom:5px}
+.pja-q{font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:300;font-style:italic;line-height:1.35;color:rgba(251,248,244,0.9)}
+
+/* Layout B: Split */
+.pg-journey-b{background:#060404;color:var(--white)}
+.pjb-photo{
+  height:58%;flex-shrink:0;position:relative;overflow:hidden;
+  background:linear-gradient(160deg,#B87840 0%,#6A3018 35%,#2A1208 65%,#0E0806 100%);
+}
+.pjb-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(6,4,4,0) 60%,rgba(6,4,4,0.9) 100%)}
+.pjb-body{padding:12px 16px;flex:1;display:flex;flex-direction:column;justify-content:space-between}
+.pjb-ch{font-size:7px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(201,169,110,0.7);margin-bottom:5px}
+.pjb-q{font-family:'Cormorant Garamond',serif;font-size:14px;font-weight:300;font-style:italic;line-height:1.35;color:rgba(251,248,244,0.88);margin-bottom:6px}
+.pjb-p{font-size:9px;line-height:1.55;color:rgba(200,185,170,0.7)}
+
+/* Layout C: Editorial */
+.pg-journey-c{background:var(--ivory);flex-direction:row!important}
+.pjc-photo{
+  width:42%;background:
+    linear-gradient(170deg,#8A5028 0%,#3E1A08 45%,#160A04 100%);
+  position:relative;overflow:hidden;flex-shrink:0;
+}
+.pjc-photo-grain{position:absolute;inset:0;background:radial-gradient(circle 8px at 20% 15%,rgba(255,200,120,0.4) 0%,transparent 100%)}
+.pjc-body{
+  flex:1;padding:20px 12px 16px;display:flex;flex-direction:column;
+  border-left:1px solid rgba(0,0,0,0.06);
+}
+.pjc-ch{font-size:6.5px;letter-spacing:0.18em;text-transform:uppercase;color:var(--gold-dk);margin-bottom:8px}
+.pjc-num{
+  font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:300;
+  color:rgba(201,169,110,0.2);line-height:1;margin-bottom:8px;
+}
+.pjc-q{font-family:'Cormorant Garamond',serif;font-size:13px;font-weight:300;font-style:italic;line-height:1.4;color:var(--ink);margin-bottom:8px}
+.pjc-p{font-size:9px;line-height:1.6;color:var(--stone)}
+
+/* ── PAGE: CEREMONY ──────────────────── */
+.pg-ceremony{background:#060402}
+.pg-cer-photo{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(circle 10px at 50% 15%,rgba(255,220,148,0.5) 0%,transparent 100%),
+    radial-gradient(circle 22px at 50% 40%,rgba(220,180,100,0.25) 0%,transparent 100%),
+    linear-gradient(180deg,#D4A060 0%,#8A5028 20%,#3A1C0A 50%,#160A04 80%,#060402 100%);
+}
+.pg-cer-overlay{
+  position:absolute;inset:0;
+  background:linear-gradient(to bottom,rgba(6,4,2,0.4) 0%,rgba(6,4,2,0.1) 35%,rgba(6,4,2,0.0) 55%,rgba(6,4,2,0.7) 78%,rgba(6,4,2,0.97) 100%);
+}
+/* Arch/gate SVG overlay */
+.pg-cer-arch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:100%;height:70%;opacity:0.5}
+.pg-cer-content{
+  position:absolute;bottom:0;left:0;right:0;
+  padding:0 16px 18px;
+}
+.pg-cer-ch{font-size:7px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(201,169,110,0.8);margin-bottom:6px;text-align:center}
+.pg-cer-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:300;color:rgba(251,248,244,0.95);text-align:center;line-height:1.2}
+.pg-cer-sub{font-size:8.5px;letter-spacing:0.1em;color:rgba(232,220,208,0.55);text-align:center;margin-top:4px}
+
+/* ── PAGE: THE PEOPLE ────────────────── */
+.pg-people{background:var(--white)}
+.pg-ppl-top{padding:12px 14px 8px;flex-shrink:0}
+.pg-ppl-ch{font-size:7px;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold-dk)}
+.pg-ppl-title{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:300;color:var(--ink);line-height:1.2}
+.pg-ppl-grid{
+  flex:1;display:grid;
+  grid-template-columns:1fr 1fr;
+  grid-template-rows:1fr 1fr;
+  gap:3px;padding:0 3px 3px;
+  overflow:hidden;
+}
+.pg-ppl-photo{border-radius:3px;overflow:hidden;position:relative}
+.pg-ppl-photo:first-child{grid-row:1/3}/* tall left */
+.ppl-img{width:100%;height:100%}
+
+/* ── PAGE: FILM ──────────────────────── */
+.pg-film{background:#020202}
+.pg-film-bg{
+  position:absolute;inset:0;
+  background:linear-gradient(180deg,#1A1208 0%,#0A0806 50%,#020202 100%);
+}
+.pg-film-content{
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;padding:20px;
+  text-align:center;
+}
+.pg-film-eyebrow{font-size:7px;letter-spacing:0.22em;text-transform:uppercase;color:rgba(201,169,110,0.7);margin-bottom:16px}
+.pg-film-play{
+  width:52px;height:52px;border-radius:50%;
+  border:1.5px solid rgba(201,169,110,0.5);
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 14px;position:relative;
+}
+.pg-film-play::before{
+  content:'';position:absolute;
+  width:90px;height:90px;border-radius:50%;
+  border:1px solid rgba(201,169,110,0.15);
+  animation:pulse-ring 2.5s ease-out infinite;
+}
+@keyframes pulse-ring{0%{transform:scale(0.6);opacity:0.6}100%{transform:scale(1.4);opacity:0}}
+.pg-film-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:300;color:rgba(251,248,244,0.95);margin-bottom:5px}
+.pg-film-dur{font-size:10px;letter-spacing:0.08em;color:rgba(201,169,110,0.7);margin-bottom:3px}
+.pg-film-count{font-size:9px;color:rgba(200,185,170,0.5)}
+
+/* ── RIGHT: TOOLS PANEL ──────────────── */
+.tools-panel{
+  width:282px;background:var(--panel);
+  border-left:1px solid rgba(0,0,0,0.09);
+  display:flex;flex-direction:column;overflow:hidden;
+  flex-shrink:0;
+}
+.tp-tabs{
+  display:flex;border-bottom:1px solid rgba(0,0,0,0.08);
+  flex-shrink:0;padding:8px 12px 0;gap:2px;
+}
+.tp-tab{
+  padding:6px 10px;font-size:10px;font-weight:400;
+  letter-spacing:0.04em;color:var(--muted);cursor:pointer;
+  border-bottom:2px solid transparent;transition:all 0.15s;background:none;border-top:none;border-left:none;border-right:none;
+  margin-bottom:-1px;
+}
+.tp-tab:hover{color:var(--stone)}
+.tp-tab.on{color:var(--gold-dk);border-bottom-color:var(--gold)}
+.tp-body{flex:1;overflow-y:auto;padding:14px}
+.tp-body::-webkit-scrollbar{width:4px}
+.tp-body::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.12);border-radius:2px}
+
+/* Tool sections */
+.tool-section{margin-bottom:20px}
+.tool-section-label{
+  font-size:8px;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;
+}
+.tool-btn{
+  width:100%;padding:9px 12px;border-radius:5px;border:none;
+  background:var(--white);border:1px solid rgba(0,0,0,0.08);
+  display:flex;align-items:center;gap:10px;cursor:pointer;
+  margin-bottom:6px;transition:all 0.15s;text-align:left;
+}
+.tool-btn:hover{background:rgba(201,169,110,0.06);border-color:rgba(201,169,110,0.3)}
+.tool-btn.active{background:rgba(201,169,110,0.1);border-color:var(--gold);border-width:1.5px}
+.tool-btn-icon{
+  width:30px;height:30px;border-radius:6px;flex-shrink:0;
+  background:rgba(201,169,110,0.1);
+  display:flex;align-items:center;justify-content:center;color:var(--gold-dk);
+}
+.tool-btn-icon svg{width:14px;height:14px}
+.tool-btn-info{flex:1;min-width:0}
+.tool-btn-name{font-size:11.5px;font-weight:400;color:var(--ink);margin-bottom:1px}
+.tool-btn-desc{font-size:9.5px;color:var(--muted);line-height:1.4}
+.tool-btn-badge{
+  font-size:8.5px;padding:2px 6px;border-radius:10px;
+  background:rgba(201,169,110,0.15);color:var(--gold-dk);
+  white-space:nowrap;flex-shrink:0;
+}
+
+/* Regenerate mode: layout variants */
+.layout-variants{display:flex;flex-direction:column;gap:8px}
+.layout-variant{
+  border-radius:6px;border:1.5px solid rgba(0,0,0,0.1);
+  overflow:hidden;cursor:pointer;transition:all 0.15s;background:var(--white);
+}
+.layout-variant:hover{border-color:rgba(201,169,110,0.4)}
+.layout-variant.on{border-color:var(--gold);box-shadow:0 0 0 2px rgba(201,169,110,0.15)}
+.lv-preview{height:82px;position:relative;overflow:hidden}
+.lv-label{padding:7px 10px;display:flex;align-items:center;justify-content:space-between}
+.lv-name{font-size:10.5px;font-weight:400;color:var(--ink)}
+.lv-tag{font-size:8.5px;color:var(--muted)}
+.lv-selected{font-size:8.5px;color:var(--success);display:none}
+.layout-variant.on .lv-selected{display:block}
+.layout-variant.on .lv-tag{display:none}
+
+/* Replace photo mode */
+.photo-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;margin-bottom:12px}
+.ph-thumb{border-radius:4px;aspect-ratio:1;overflow:hidden;cursor:pointer;position:relative;border:2px solid transparent;transition:all 0.15s}
+.ph-thumb:hover{transform:scale(1.02)}
+.ph-thumb.sel{border-color:var(--gold)}
+.ph-thumb.sel::after{content:'✓';position:absolute;bottom:3px;right:3px;font-size:9px;color:var(--white);background:var(--gold);border-radius:50%;width:14px;height:14px;display:flex;align-items:center;justify-content:center;font-weight:600}
+.ph-img{width:100%;height:100%}
+
+/* Story edit mode */
+.story-edit-area{
+  width:100%;min-height:80px;padding:10px;border-radius:5px;
+  border:1px solid rgba(0,0,0,0.12);font-family:'Cormorant Garamond',serif;
+  font-size:13px;line-height:1.55;color:var(--ink);resize:none;
+  background:var(--white);outline:none;
+}
+.story-edit-area:focus{border-color:var(--gold)}
+.ai-prompt-chips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
+.ai-chip{
+  padding:4px 10px;border-radius:20px;font-size:10px;
+  border:1px solid rgba(0,0,0,0.1);color:var(--stone);cursor:pointer;background:var(--white);
+  transition:all 0.15s;
+}
+.ai-chip:hover{border-color:var(--gold);color:var(--gold-dk);background:rgba(201,169,110,0.06)}
+.ai-chip.on{background:rgba(201,169,110,0.12);border-color:var(--gold);color:var(--gold-dk)}
+
+/* Publish mode */
+.privacy-options{margin-bottom:14px}
+.priv-option{
+  display:flex;align-items:center;gap:10px;padding:9px 10px;
+  border-radius:5px;margin-bottom:5px;cursor:pointer;border:1.5px solid transparent;
+  background:var(--white);transition:all 0.15s;
+}
+.priv-option:hover{border-color:rgba(0,0,0,0.1)}
+.priv-option.on{border-color:var(--gold);background:rgba(201,169,110,0.06)}
+.priv-radio{width:14px;height:14px;border-radius:50%;border:1.5px solid rgba(0,0,0,0.2);flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.priv-option.on .priv-radio{border-color:var(--gold);background:var(--gold)}
+.priv-radio-dot{width:5px;height:5px;border-radius:50%;background:var(--white);display:none}
+.priv-option.on .priv-radio-dot{display:block}
+.priv-info{flex:1}
+.priv-name{font-size:11.5px;color:var(--ink);font-weight:400}
+.priv-desc{font-size:9px;color:var(--muted);margin-top:1px}
+.share-methods{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px}
+.share-method{
+  padding:5px 10px;border-radius:4px;font-size:10px;
+  border:1px solid rgba(0,0,0,0.1);color:var(--stone);
+  display:flex;align-items:center;gap:5px;background:var(--white);
+  cursor:pointer;
+}
+.share-method:hover{border-color:var(--gold);color:var(--gold-dk)}
+.share-method svg{width:11px;height:11px}
+
+/* Bottom status bar */
+.statusbar{
+  height:34px;background:var(--panel);
+  border-top:1px solid rgba(0,0,0,0.08);
+  display:flex;align-items:center;padding:0 18px;
+  gap:0;font-size:10px;color:var(--muted);flex-shrink:0;
+}
+.sb-item{display:flex;align-items:center;gap:6px;margin-right:20px}
+.sb-dot{width:5px;height:5px;border-radius:50%;background:var(--muted);opacity:0.4}
+.sb-item.hl .sb-dot{background:var(--success);opacity:1}
+.sb-spacer{flex:1}
+.sb-page-nav{display:flex;align-items:center;gap:10px}
+.sb-nav-btn{
+  padding:3px 10px;border-radius:3px;border:1px solid rgba(0,0,0,0.12);
+  background:none;font-size:10px;color:var(--stone);cursor:pointer;
+  display:flex;align-items:center;gap:4px;
+}
+.sb-nav-btn:hover{background:rgba(0,0,0,0.04)}
+.sb-page-txt{font-size:10px;color:var(--stone);letter-spacing:0.04em;font-variant-numeric:tabular-nums}
+
+/* Tooltip */
+.tooltip{
+  position:fixed;bottom:50px;left:50%;transform:translateX(-50%);
+  background:var(--ink);color:var(--champagne);
+  font-size:11px;padding:7px 14px;border-radius:4px;
+  pointer-events:none;opacity:0;transition:opacity 0.3s;z-index:999;white-space:nowrap;
+}
+.tooltip.vis{opacity:1}
+</style>
+</head>
+<body>
+<div class="editor">
+
+<!-- ── TOP BAR ─────────────────────────── -->
+<div class="topbar">
+  <div class="tb-logo">Optima</div>
+  <div class="tb-sep"></div>
+  <div class="tb-album">
+    <div class="tb-album-name">Yulius &amp; Ananda</div>
+    <div class="tb-album-meta">Javanese · Ubud, Bali · 12 August 2026</div>
+  </div>
+  <div class="tb-status">
+    <div class="tb-status-dot"></div>
+    All changes saved
+  </div>
+  <div class="tb-mode-tabs">
+    <button class="mode-tab on" onclick="setEditorMode('edit',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      Editor
+    </button>
+    <button class="mode-tab" onclick="setEditorMode('film',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+      Film
+    </button>
+    <button class="mode-tab" onclick="setEditorMode('publish',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+      Publish
+    </button>
+  </div>
+  <button class="tb-btn tb-btn-ghost" style="margin-right:6px">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+    Save
+  </button>
+  <button class="tb-btn tb-btn-primary" onclick="setEditorMode('publish',document.querySelectorAll('.mode-tab')[2])">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+    Publish Album
+  </button>
+</div>
+
+<!-- ── EDITOR BODY ─────────────────────── -->
+<div class="editor-body">
+
+  <!-- ── LEFT: CHAPTERS ────────────────── -->
+  <aside class="chapter-panel">
+    <div class="cp-header">
+      <div class="cp-header-label">Album Structure</div>
+      <div class="cp-album-style">
+        <span class="cp-style-badge">Editorial</span>
+        8 chapters · 12 pages
+      </div>
+    </div>
+    <div class="chapter-list">
+      <div class="chapter-item" onclick="selectChapter('cover',this,0)">
+        <div class="ci-num">01</div>
+        <div class="ci-info"><div class="ci-name">Cover</div><div class="ci-sub">1 page · Hero portrait</div></div>
+        <div class="ci-status"><svg class="ci-done" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div>
+      </div>
+      <div class="chapter-item" onclick="selectChapter('story',this,0)">
+        <div class="ci-num">02</div>
+        <div class="ci-info"><div class="ci-name">Opening — Our Story</div><div class="ci-sub">2 pages · Couple narrative</div></div>
+        <div class="ci-status"><svg class="ci-done" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div>
+      </div>
+      <div class="chapter-item on" onclick="selectChapter('journey',this,0)" id="ci-journey">
+        <div class="ci-num">03</div>
+        <div class="ci-info"><div class="ci-name">The Journey</div><div class="ci-sub">2 pages · Editorial storytelling</div></div>
+        <div class="ci-status"><div class="ci-active"></div></div>
+      </div>
+      <div class="chapter-item" onclick="selectChapter('ceremony',this,0)">
+        <div class="ci-num">04</div>
+        <div class="ci-info"><div class="ci-name">The Ceremony</div><div class="ci-sub">3 pages · Ijab Kabul · Vows</div></div>
+        <div class="ci-status"><svg class="ci-done" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div>
+      </div>
+      <div class="chapter-item" onclick="selectChapter('ceremony',this,0)">
+        <div class="ci-num">05</div>
+        <div class="ci-info"><div class="ci-name">Our Tradition</div><div class="ci-sub">2 pages · Siraman · Midodareni</div></div>
+        <div class="ci-status"><svg class="ci-done" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div>
+      </div>
+      <div class="chapter-item" onclick="selectChapter('people',this,0)">
+        <div class="ci-num">06</div>
+        <div class="ci-info"><div class="ci-name">The People</div><div class="ci-sub">2 pages · Family · Friends</div></div>
+        <div class="ci-status"><svg class="ci-done" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div>
+      </div>
+      <div class="chapter-item" onclick="selectChapter('ceremony',this,0)">
+        <div class="ci-num">07</div>
+        <div class="ci-info"><div class="ci-name">The Celebration</div><div class="ci-sub">2 pages · Reception · Dancing</div></div>
+        <div class="ci-status"><svg class="ci-done" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div>
+      </div>
+      <div class="chapter-item" onclick="selectChapter('film',this,0)">
+        <div class="ci-num">08</div>
+        <div class="ci-info"><div class="ci-name">Wedding Film</div><div class="ci-sub">Cinematic · 3 min 42 sec</div></div>
+        <div class="ci-status"><svg class="ci-done" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div>
+      </div>
+    </div>
+
+    <div class="cp-page-nav">
+      <div class="cp-page-label">Pages in Chapter</div>
+      <div class="cp-page-dots" id="page-dots">
+        <div class="pg-dot on"></div>
+        <div class="pg-dot"></div>
+      </div>
+    </div>
+
+    <div class="cp-ai-badge">
+      <strong>AI Javanese</strong> — Chapter structure follows Siraman, Midodareni and Resepsi narrative arc.
+    </div>
+  </aside>
+
+  <!-- ── CENTER: PHONE PREVIEW ──────────── -->
+  <main class="center-panel">
+    <div class="preview-label">Live Mobile Preview</div>
+    <div class="preview-phone-wrap">
+      <div class="preview-phone">
+        <div class="preview-dyn"></div>
+        <div class="preview-screen">
+
+          <!-- COVER page -->
+          <div class="album-page pg-cover" id="pg-cover">
+            <div class="pg-cover-photo"></div>
+            <div class="pg-cover-overlay"></div>
+            <!-- Mini couple SVG -->
+            <svg class="pg-cover-svg" viewBox="0 0 120 130" fill="none">
+              <!-- Bokeh -->
+              <circle cx="20" cy="22" r="10" fill="rgba(255,210,130,0.18)"/>
+              <circle cx="95" cy="14" r="7" fill="rgba(255,195,110,0.14)"/>
+              <!-- Bride -->
+              <ellipse cx="46" cy="106" rx="18" ry="26" fill="rgba(235,225,210,0.85)"/>
+              <path d="M36,82 Q38,73 42,70 Q46,67 50,67 Q54,67 57,72 Q60,77 59,84 Q57,88 53,90 Q48,91 44,89 Q39,87 36,82Z" fill="rgba(228,218,200,0.9)"/>
+              <ellipse cx="48" cy="63" rx="9" ry="10" fill="rgba(175,138,108,0.95)"/>
+              <path d="M39,60 Q39,54 48,53 Q57,53 57,60 Q53,57 48,57 Q43,57 39,60Z" fill="rgba(45,28,15,0.85)"/>
+              <!-- Groom -->
+              <path d="M65,77 Q66,69 73,68 Q77,67 80,68 Q86,69 87,77 Q88,84 87,94 L65,94 Q64,86 65,77Z" fill="rgba(18,13,9,0.9)"/>
+              <rect x="66" y="93" width="10" height="32" rx="3" fill="rgba(18,13,9,0.88)"/>
+              <rect x="78" y="93" width="10" height="32" rx="3" fill="rgba(18,13,9,0.88)"/>
+              <ellipse cx="76" cy="63" rx="8" ry="9" fill="rgba(165,128,98,0.95)"/>
+              <path d="M68,60 Q68,54 76,53 Q84,53 84,60 Q80,57 76,57 Q72,57 68,60Z" fill="rgba(35,22,12,0.9)"/>
+            </svg>
+            <div class="pv-sb" style="color:rgba(240,232,220,0.7)"><span>9:41</span></div>
+            <div class="pg-cover-content">
+              <div class="pg-cover-eyebrow">Our Wedding Album</div>
+              <div class="pg-cover-names">Yulius<br><span class="pg-cover-amp">&amp;</span><br>Ananda</div>
+              <div class="pg-cover-date">12 · 08 · 2026</div>
+              <div class="pg-cover-loc">Ubud · Bali</div>
+              <div class="pg-cover-scroll">↓ scroll to begin</div>
+            </div>
+          </div>
+
+          <!-- OUR STORY page -->
+          <div class="album-page pg-story" id="pg-story">
+            <div class="pv-sb"><span style="color:var(--ink);font-size:10px">9:41</span></div>
+            <div class="pg-story-top">
+              <div class="pg-story-top-overlay"></div>
+            </div>
+            <div class="pg-story-body">
+              <div>
+                <div class="pg-story-ch">Opening — Our Story</div>
+                <div class="pg-story-quote">"It all started with a simple hello that changed everything."</div>
+                <div class="pg-story-body-txt">From a chance meeting to a lifelong promise. Yulius and Ananda's story is one of patience, laughter, and a love that grew quietly before it bloomed.</div>
+              </div>
+              <div class="pg-story-nav">
+                <span class="pg-nav-btn">← Cover</span>
+                <div class="pg-ch-dots">
+                  <div class="pg-ch-dot"></div><div class="pg-ch-dot on"></div><div class="pg-ch-dot"></div><div class="pg-ch-dot"></div>
+                </div>
+                <span class="pg-nav-btn active">Journey →</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- JOURNEY — Layout A (Cinematic, default) -->
+          <div class="album-page pg-journey-a on" id="pg-journey-a">
+            <div class="pv-sb" style="color:rgba(240,232,220,0.5)"><span>9:41</span></div>
+            <div class="pja-photo">
+              <div class="pja-overlay"></div>
+            </div>
+            <div class="pja-text">
+              <div class="pja-ch">The Journey — Chapter 03</div>
+              <div class="pja-q">"Before the vows, there was a journey only the two of them knew."</div>
+            </div>
+          </div>
+
+          <!-- JOURNEY — Layout B (Split) -->
+          <div class="album-page pg-journey-b" id="pg-journey-b">
+            <div class="pv-sb" style="color:rgba(240,232,220,0.5)"><span>9:41</span></div>
+            <div class="pjb-photo"><div class="pjb-overlay"></div></div>
+            <div class="pjb-body">
+              <div>
+                <div class="pjb-ch">The Journey — Chapter 03</div>
+                <div class="pjb-q">"Before the vows, there was a journey."</div>
+                <div class="pjb-p">Moments collected quietly over years — a shared silence at the end of a long day, the comfort of knowing someone sees you.</div>
+              </div>
+              <div class="pg-story-nav">
+                <span class="pg-nav-btn active">← Our Story</span>
+                <div class="pg-ch-dots"><div class="pg-ch-dot"></div><div class="pg-ch-dot"></div><div class="pg-ch-dot on"></div><div class="pg-ch-dot"></div></div>
+                <span class="pg-nav-btn active">Ceremony →</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- JOURNEY — Layout C (Editorial) -->
+          <div class="album-page pg-journey-c" id="pg-journey-c" style="flex-direction:row">
+            <div class="pjc-photo">
+              <div class="pjc-photo-grain"></div>
+              <div class="pv-sb" style="color:rgba(240,232,220,0.5)"><span>9:41</span></div>
+            </div>
+            <div class="pjc-body">
+              <div>
+                <div class="pjc-ch">The Journey</div>
+                <div class="pjc-num">03</div>
+                <div class="pjc-q">"Before the vows, there was a journey only the two of them knew."</div>
+                <div class="pjc-p">A private story that became their shared beginning.</div>
+              </div>
+              <div class="pg-ch-dots" style="margin-top:auto"><div class="pg-ch-dot"></div><div class="pg-ch-dot"></div><div class="pg-ch-dot on"></div><div class="pg-ch-dot"></div></div>
+            </div>
+          </div>
+
+          <!-- CEREMONY page -->
+          <div class="album-page pg-ceremony" id="pg-ceremony">
+            <div class="pg-cer-photo"></div>
+            <div class="pg-cer-overlay"></div>
+            <svg class="pg-cer-arch" viewBox="0 0 236 300" fill="none">
+              <path d="M 60,280 L 60,100 Q 60,30 118,30 Q 176,30 176,100 L 176,280" stroke="rgba(201,169,110,0.3)" stroke-width="1.5" fill="none"/>
+              <path d="M 40,280 L 40,110 Q 40,10 118,10 Q 196,10 196,110 L 196,280" stroke="rgba(201,169,110,0.15)" stroke-width="1" fill="none"/>
+              <circle cx="60" cy="100" r="6" fill="rgba(201,169,110,0.25)"/>
+              <circle cx="176" cy="100" r="6" fill="rgba(201,169,110,0.25)"/>
+              <circle cx="118" cy="30" r="8" fill="rgba(201,169,110,0.3)"/>
+              <circle cx="118" cy="30" r="4" fill="rgba(201,169,110,0.5)"/>
+              <line x1="80" y1="30" x2="80" y2="90" stroke="rgba(201,169,110,0.2)" stroke-width="1" stroke-dasharray="3,4"/>
+              <line x1="100" y1="20" x2="100" y2="80" stroke="rgba(201,169,110,0.15)" stroke-width="1" stroke-dasharray="3,4"/>
+              <line x1="136" y1="20" x2="136" y2="80" stroke="rgba(201,169,110,0.15)" stroke-width="1" stroke-dasharray="3,4"/>
+              <line x1="156" y1="30" x2="156" y2="90" stroke="rgba(201,169,110,0.2)" stroke-width="1" stroke-dasharray="3,4"/>
+            </svg>
+            <div class="pv-sb" style="color:rgba(240,232,220,0.5)"><span>9:41</span></div>
+            <div class="pg-cer-content">
+              <div class="pg-cer-ch">The Ceremony</div>
+              <div class="pg-cer-title">Ijab Kabul</div>
+              <div class="pg-cer-sub">12 August 2026 · Ubud, Bali</div>
+            </div>
+          </div>
+
+          <!-- THE PEOPLE page -->
+          <div class="album-page pg-people" id="pg-people">
+            <div class="pv-sb"><span style="color:var(--ink);font-size:10px">9:41</span></div>
+            <div class="pg-ppl-top">
+              <div class="pg-ppl-ch">The People</div>
+              <div class="pg-ppl-title">Those who<br>celebrated with us.</div>
+            </div>
+            <div class="pg-ppl-grid">
+              <div class="pg-ppl-photo" style="background:linear-gradient(150deg,#A07038 0%,#4A2010 55%,#180C06 100%)"></div>
+              <div class="pg-ppl-photo" style="background:linear-gradient(145deg,#C89058 0%,#7A4020 50%,#2A1208 100%)"></div>
+              <div class="pg-ppl-photo" style="background:linear-gradient(160deg,#6A4020 0%,#2A1008 100%)"></div>
+              <div class="pg-ppl-photo" style="background:linear-gradient(155deg,#D4A868 0%,#8A5028 50%,#3A1808 100%)"></div>
+            </div>
+          </div>
+
+          <!-- FILM page -->
+          <div class="album-page pg-film" id="pg-film">
+            <div class="pg-film-bg"></div>
+            <div class="pv-sb" style="color:rgba(240,232,220,0.3)"><span>9:41</span></div>
+            <div class="pg-film-content">
+              <div class="pg-film-eyebrow">Our Wedding Film</div>
+              <div class="pg-film-play">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="var(--gold)"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              </div>
+              <div class="pg-film-title">Yulius &amp; Ananda</div>
+              <div class="pg-film-dur">3 : 4 2</div>
+              <div class="pg-film-count">86 photos · 12 videos · Javanese ceremony</div>
+            </div>
+          </div>
+
+        </div><!-- /preview-screen -->
+      </div><!-- /preview-phone -->
+    </div><!-- /preview-phone-wrap -->
+
+    <div class="preview-label" id="preview-caption">Chapter 3 — The Journey · Page 1 of 2</div>
+  </main>
+
+  <!-- ── RIGHT: TOOLS ───────────────────── -->
+  <aside class="tools-panel">
+    <div class="tp-tabs">
+      <button class="tp-tab on" onclick="setToolMode('ai',this)">AI Tools</button>
+      <button class="tp-tab" onclick="setToolMode('layouts',this)">Layouts</button>
+      <button class="tp-tab" onclick="setToolMode('photos',this)">Photos</button>
+      <button class="tp-tab" onclick="setToolMode('story',this)">Story</button>
+    </div>
+
+    <!-- AI Tools panel -->
+    <div class="tp-body" id="tp-ai">
+      <div class="tool-section">
+        <div class="tool-section-label">Layout</div>
+        <button class="tool-btn" onclick="setToolMode('layouts',document.querySelectorAll('.tp-tab')[1])">
+          <div class="tool-btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/><path d="M3 9h6"/><path d="M3 15h6"/></svg></div>
+          <div class="tool-btn-info">
+            <div class="tool-btn-name">Regenerate Layout</div>
+            <div class="tool-btn-desc">AI creates a new composition using the same photos</div>
+          </div>
+          <div class="tool-btn-badge">3 variants</div>
+        </button>
+        <button class="tool-btn" onclick="showToast('Mood options will appear in the preview')">
+          <div class="tool-btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></div>
+          <div class="tool-btn-info">
+            <div class="tool-btn-name">Change Mood</div>
+            <div class="tool-btn-desc">Cinematic · Romantic · Minimal · Editorial</div>
+          </div>
+        </button>
+      </div>
+
+      <div class="tool-section">
+        <div class="tool-section-label">Photos</div>
+        <button class="tool-btn" onclick="setToolMode('photos',document.querySelectorAll('.tp-tab')[2])">
+          <div class="tool-btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
+          <div class="tool-btn-info">
+            <div class="tool-btn-name">Replace Photo</div>
+            <div class="tool-btn-desc">Choose from AI-curated photo selection</div>
+          </div>
+          <div class="tool-btn-badge">86 photos</div>
+        </button>
+        <button class="tool-btn" onclick="showToast('AI will rebalance photos across chapters')">
+          <div class="tool-btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
+          <div class="tool-btn-info">
+            <div class="tool-btn-name">Rebalance Photos</div>
+            <div class="tool-btn-desc">Prioritize couple · family · ceremony · candid</div>
+          </div>
+        </button>
+      </div>
+
+      <div class="tool-section">
+        <div class="tool-section-label">Narrative</div>
+        <button class="tool-btn" onclick="setToolMode('story',document.querySelectorAll('.tp-tab')[3])">
+          <div class="tool-btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></div>
+          <div class="tool-btn-info">
+            <div class="tool-btn-name">Rewrite Story</div>
+            <div class="tool-btn-desc">AI rewrites the chapter narrative text</div>
+          </div>
+        </button>
+        <button class="tool-btn" onclick="showToast('AI will restructure all 8 chapters')">
+          <div class="tool-btn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
+          <div class="tool-btn-info">
+            <div class="tool-btn-name">Regenerate Chapter</div>
+            <div class="tool-btn-desc">Rebuild this chapter with different photos and story</div>
+          </div>
+        </button>
+      </div>
+
+      <div class="tool-section">
+        <div class="tool-section-label">Design</div>
+        <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:6px">
+          <div class="ai-chip" onclick="toggleChip(this)">Cover photo</div>
+          <div class="ai-chip on" onclick="toggleChip(this)">Typography</div>
+          <div class="ai-chip" onclick="toggleChip(this)">Chapter order</div>
+          <div class="ai-chip" onclick="toggleChip(this)">Background</div>
+          <div class="ai-chip" onclick="toggleChip(this)">Accent color</div>
+          <div class="ai-chip" onclick="toggleChip(this)">Music</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Layout Variants panel -->
+    <div class="tp-body" id="tp-layouts" style="display:none">
+      <div class="tool-section-label" style="margin-bottom:10px">Layout Variants — Chapter 3</div>
+      <div class="layout-variants">
+        <div class="layout-variant on" onclick="selectLayout('a',this)">
+          <div class="lv-preview" style="background:linear-gradient(162deg,#9A6030 0%,#5A2A10 35%,#281208 65%,#0E0804 100%)">
+            <div style="position:absolute;bottom:0;left:0;right:0;height:35%;background:linear-gradient(to top,#060404,transparent)"></div>
+            <div style="position:absolute;bottom:8px;left:10px;font-size:7.5px;color:rgba(201,169,110,0.8);letter-spacing:0.12em;text-transform:uppercase">The Journey</div>
+          </div>
+          <div class="lv-label">
+            <span class="lv-name">A — Cinematic</span>
+            <span class="lv-tag">Full bleed</span>
+            <span class="lv-selected" style="color:var(--success)">✓ Current</span>
+          </div>
+        </div>
+        <div class="layout-variant" onclick="selectLayout('b',this)">
+          <div class="lv-preview" style="background:var(--white)">
+            <div style="height:55%;background:linear-gradient(160deg,#B87840 0%,#6A3018 40%,#2A1208 75%,#0E0806 100%)"></div>
+            <div style="padding:6px 10px"><div style="font-size:7px;color:rgba(201,169,110,0.7);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:3px">The Journey</div><div style="font-size:8px;color:rgba(6,4,4,0.7);font-family:'Cormorant Garamond',serif;font-style:italic">"Before the vows…"</div></div>
+          </div>
+          <div class="lv-label">
+            <span class="lv-name">B — Split View</span>
+            <span class="lv-tag">Photo + text</span>
+            <span class="lv-selected" style="color:var(--success)">✓ Current</span>
+          </div>
+        </div>
+        <div class="layout-variant" onclick="selectLayout('c',this)">
+          <div class="lv-preview" style="background:var(--ivory);display:flex;flex-direction:row">
+            <div style="width:40%;background:linear-gradient(170deg,#8A5028 0%,#3E1A08 50%,#160A04 100%)"></div>
+            <div style="padding:6px 8px;flex:1;display:flex;flex-direction:column;justify-content:center">
+              <div style="font-size:20px;color:rgba(201,169,110,0.2);font-family:'Cormorant Garamond',serif;line-height:1">03</div>
+              <div style="font-size:8px;color:var(--ink);font-family:'Cormorant Garamond',serif;font-style:italic;line-height:1.3;margin-top:2px">"Before the vows…"</div>
+            </div>
+          </div>
+          <div class="lv-label">
+            <span class="lv-name">C — Editorial</span>
+            <span class="lv-tag">Asymmetric</span>
+            <span class="lv-selected" style="color:var(--success)">✓ Current</span>
+          </div>
+        </div>
+      </div>
+      <button class="tool-btn" style="margin-top:10px;justify-content:center" onclick="showToast('AI generating a new layout variant…')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+        <span style="font-size:11px;font-weight:500;color:var(--stone);margin-left:6px">Generate New Variant</span>
+      </button>
+    </div>
+
+    <!-- Photos panel -->
+    <div class="tp-body" id="tp-photos" style="display:none">
+      <div class="tool-section-label" style="margin-bottom:4px">AI-Selected Photos</div>
+      <div style="font-size:10px;color:var(--muted);margin-bottom:10px;line-height:1.5">86 moments selected from 327 photos. Tap to replace the current image.</div>
+      <div class="photo-grid">
+        <div class="ph-thumb sel" onclick="selectPhoto(this)"><div class="ph-img" style="background:linear-gradient(150deg,#A07038,#4A2010 55%,#180C06)"></div></div>
+        <div class="ph-thumb" onclick="selectPhoto(this)"><div class="ph-img" style="background:linear-gradient(145deg,#C89058,#7A4020 50%,#2A1208)"></div></div>
+        <div class="ph-thumb" onclick="selectPhoto(this)"><div class="ph-img" style="background:linear-gradient(160deg,#6A4020,#2A1008)"></div></div>
+        <div class="ph-thumb" onclick="selectPhoto(this)"><div class="ph-img" style="background:linear-gradient(155deg,#D4A868,#8A5028 50%,#3A1808)"></div></div>
+        <div class="ph-thumb" onclick="selectPhoto(this)"><div class="ph-img" style="background:linear-gradient(162deg,#E8C078,#A07040 45%,#4A2010)"></div></div>
+        <div class="ph-thumb" onclick="selectPhoto(this)"><div class="ph-img" style="background:linear-gradient(148deg,#5A3018,#1E0C06)"></div></div>
+        <div class="ph-thumb" onclick="selectPhoto(this)"><div class="ph-img" style="background:linear-gradient(152deg,#B88048,#6A3820 45%,#281208)"></div></div>
+        <div class="ph-thumb" onclick="selectPhoto(this)"><div class="ph-img" style="background:linear-gradient(158deg,#C09060,#7A4828 45%,#321408)"></div></div>
+        <div class="ph-thumb" onclick="selectPhoto(this)"><div class="ph-img" style="background:linear-gradient(165deg,#E0B888,#A07848 45%,#4A2818)"></div></div>
+      </div>
+      <div style="font-size:9.5px;color:var(--muted);text-align:center;margin-bottom:10px">Showing 9 of 86 moments · <span style="color:var(--gold-dk);cursor:pointer">View all</span></div>
+      <button style="width:100%;height:38px;background:var(--ink);border:none;border-radius:4px;color:var(--gold);font-family:'DM Sans',sans-serif;font-size:10.5px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer" onclick="showToast('Photo replaced successfully')">Apply Photo</button>
+    </div>
+
+    <!-- Story Edit panel -->
+    <div class="tp-body" id="tp-story" style="display:none">
+      <div class="tool-section-label" style="margin-bottom:8px">Chapter Narrative</div>
+      <textarea class="story-edit-area" rows="4">"Before the vows, there was a journey only the two of them knew."</textarea>
+      <div style="font-size:9px;color:var(--muted);text-align:right;margin-bottom:12px">23 words</div>
+
+      <div class="tool-section-label" style="margin-bottom:6px">AI Rewrite Direction</div>
+      <div class="ai-prompt-chips">
+        <div class="ai-chip" onclick="toggleChip(this)">More emotional</div>
+        <div class="ai-chip on" onclick="toggleChip(this)">More cinematic</div>
+        <div class="ai-chip" onclick="toggleChip(this)">More poetic</div>
+        <div class="ai-chip" onclick="toggleChip(this)">Shorter</div>
+        <div class="ai-chip" onclick="toggleChip(this)">More personal</div>
+        <div class="ai-chip" onclick="toggleChip(this)">Use Javanese</div>
+      </div>
+
+      <button class="tool-btn" style="justify-content:center;margin-bottom:8px;background:rgba(201,169,110,0.08);border-color:rgba(201,169,110,0.3)" onclick="rewriteStory()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        <span style="font-size:11px;font-weight:500;color:var(--gold-dk);margin-left:6px">Rewrite with AI</span>
+      </button>
+      <button class="tool-btn" style="justify-content:center" onclick="showToast('Changes saved')">
+        <span style="font-size:11px;color:var(--stone)">Apply Changes</span>
+      </button>
+    </div>
+
+    <!-- Publish panel -->
+    <div class="tp-body" id="tp-publish" style="display:none">
+      <div class="tool-section-label" style="margin-bottom:8px">Privacy</div>
+      <div class="privacy-options">
+        <div class="priv-option on" onclick="selectPrivacy(this)">
+          <div class="priv-radio"><div class="priv-radio-dot"></div></div>
+          <div class="priv-info">
+            <div class="priv-name">Private Link</div>
+            <div class="priv-desc">Only people with the link can view</div>
+          </div>
+        </div>
+        <div class="priv-option" onclick="selectPrivacy(this)">
+          <div class="priv-radio"><div class="priv-radio-dot"></div></div>
+          <div class="priv-info">
+            <div class="priv-name">Guests Only</div>
+            <div class="priv-desc">Invited guests and QR code access</div>
+          </div>
+        </div>
+        <div class="priv-option" onclick="selectPrivacy(this)">
+          <div class="priv-radio"><div class="priv-radio-dot"></div></div>
+          <div class="priv-info">
+            <div class="priv-name">Public</div>
+            <div class="priv-desc">Anyone can discover and view</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tool-section-label" style="margin-bottom:6px">Share via</div>
+      <div class="share-methods">
+        <div class="share-method"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.79 19.79 0 0 1 11.39 18a19.5 19.5 0 0 1-5-5 19.79 19.79 0 0 1-3.93-9.44A2 2 0 0 1 4.44 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>WhatsApp</div>
+        <div class="share-method"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18"/></svg>QR Code</div>
+        <div class="share-method"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>Link</div>
+        <div class="share-method"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>Email</div>
+      </div>
+
+      <div class="tool-section-label" style="margin-bottom:6px;margin-top:4px">Password Protection</div>
+      <div style="display:flex;gap:6px;margin-bottom:14px">
+        <input type="password" placeholder="Set password (optional)" value="ubud2026" style="flex:1;padding:7px 10px;border:1px solid rgba(0,0,0,0.12);border-radius:4px;font-size:11px;color:var(--ink);background:var(--white);outline:none">
+      </div>
+
+      <button style="width:100%;height:44px;background:var(--ink);border:none;border-radius:4px;color:var(--gold);font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px" onclick="showToast('🎉 Album published! Link copied to clipboard.')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Publish &amp; Share Album
+      </button>
+      <div style="font-size:9px;color:var(--muted);text-align:center;margin-top:8px;line-height:1.5">Your album will be accessible via private link.<br>Guests can upload memories after publishing.</div>
+    </div>
+
+  </aside>
+</div>
+
+<!-- ── BOTTOM STATUS BAR ───────────────── -->
+<div class="statusbar">
+  <div class="sb-item hl">
+    <div class="sb-dot"></div>
+    <span id="chapter-status">Chapter 3 — The Journey</span>
+  </div>
+  <div class="sb-item">
+    <div class="sb-dot"></div>
+    <span>Style: Editorial</span>
+  </div>
+  <div class="sb-item">
+    <div class="sb-dot"></div>
+    <span>86 photos · 12 videos · AI curated</span>
+  </div>
+  <div class="sb-spacer"></div>
+  <div class="sb-page-nav">
+    <button class="sb-nav-btn" onclick="navPage(-1)">
+      <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+      Previous
+    </button>
+    <div class="sb-page-txt" id="page-count">Page 1 of 2</div>
+    <button class="sb-nav-btn" onclick="navPage(1)">
+      Next
+      <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+  </div>
+</div>
+
+</div><!-- /editor -->
+
+<div class="tooltip" id="toast"></div>
+
+<script>
+/* ── STATE ──────────────────────────── */
+const chapters = {
+  cover:   {name:'Cover',pages:1,label:'Cover · Hero Portrait'},
+  story:   {name:'Opening — Our Story',pages:2,label:'Chapter 2 — Our Story'},
+  journey: {name:'The Journey',pages:2,label:'Chapter 3 — The Journey'},
+  ceremony:{name:'The Ceremony',pages:3,label:'Chapter 4 — The Ceremony'},
+  people:  {name:'The People',pages:2,label:'Chapter 6 — The People'},
+  film:    {name:'Wedding Film',pages:1,label:'Chapter 8 — Film'}
+};
+const pageMap = {
+  cover:'pg-cover', story:'pg-story',
+  journey:'pg-journey-a', ceremony:'pg-ceremony',
+  people:'pg-people', film:'pg-film'
+};
+
+let curChapter = 'journey', curPage = 1, curLayout = 'a';
+let curToolMode = 'ai';
+
+function showPage(ch){
+  document.querySelectorAll('.album-page').forEach(p=>p.classList.remove('on'));
+  let id = pageMap[ch];
+  if(ch==='journey') id = 'pg-journey-'+curLayout;
+  const el = document.getElementById(id);
+  if(el) el.classList.add('on');
+}
+
+function selectChapter(ch, el, page){
+  curChapter = ch; curPage = 1;
+  document.querySelectorAll('.chapter-item').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
+  showPage(ch);
+  const info = chapters[ch] || chapters.journey;
+  document.getElementById('chapter-status').textContent = info.label;
+  document.getElementById('preview-caption').textContent = info.label + ' · Page 1 of ' + info.pages;
+  document.getElementById('page-count').textContent = 'Page 1 of ' + info.pages;
+  updatePageDots(1, info.pages);
+}
+
+function navPage(d){
+  const info = chapters[curChapter] || chapters.journey;
+  const newPage = Math.max(1, Math.min(info.pages, curPage + d));
+  if(newPage === curPage) return;
+  curPage = newPage;
+  document.getElementById('preview-caption').textContent = (chapters[curChapter]||chapters.journey).label + ' · Page ' + curPage + ' of ' + info.pages;
+  document.getElementById('page-count').textContent = 'Page ' + curPage + ' of ' + info.pages;
+  updatePageDots(curPage, info.pages);
+}
+
+function updatePageDots(cur, total){
+  const wrap = document.getElementById('page-dots');
+  wrap.innerHTML = '';
+  for(let i=1;i<=Math.min(total,12);i++){
+    const d = document.createElement('div');
+    d.className = 'pg-dot' + (i===cur?' on':'');
+    d.onclick = (()=>{const p=i;return ()=>navPage(p-curPage)})();
+    wrap.appendChild(d);
+  }
+}
+
+function selectLayout(layout, el){
+  curLayout = layout;
+  document.querySelectorAll('.layout-variant').forEach(v=>v.classList.remove('on'));
+  el.classList.add('on');
+  if(curChapter === 'journey'){
+    document.querySelectorAll('.album-page').forEach(p=>p.classList.remove('on'));
+    document.getElementById('pg-journey-'+layout).classList.add('on');
+  }
+  showToast('Layout ' + layout.toUpperCase() + ' applied to preview');
+}
+
+function setToolMode(mode, tab){
+  curToolMode = mode;
+  document.querySelectorAll('.tp-tab').forEach(t=>t.classList.remove('on'));
+  if(tab) tab.classList.add('on');
+  ['tp-ai','tp-layouts','tp-photos','tp-story','tp-publish'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.style.display = 'none';
+  });
+  const target = document.getElementById('tp-'+mode);
+  if(target) target.style.display = 'block';
+  if(mode==='publish'){
+    const pEl = document.getElementById('tp-publish');
+    if(pEl) pEl.style.display = 'block';
+    const aiEl = document.getElementById('tp-ai');
+    if(aiEl) aiEl.style.display = 'none';
+  }
+}
+
+function setEditorMode(mode, tabEl){
+  document.querySelectorAll('.mode-tab').forEach(t=>t.classList.remove('on'));
+  if(tabEl) tabEl.classList.add('on');
+  if(mode==='publish'){
+    document.querySelectorAll('.tp-tab').forEach(t=>t.classList.remove('on'));
+    ['tp-ai','tp-layouts','tp-photos','tp-story','tp-publish'].forEach(id=>{
+      const el = document.getElementById(id);
+      if(el) el.style.display = 'none';
+    });
+    document.getElementById('tp-publish').style.display = 'block';
+  } else if(mode==='film'){
+    selectChapter('film', document.querySelectorAll('.chapter-item')[7], 0);
+    showToast('Film configuration mode — right panel shows film settings');
+  } else {
+    const aiEl = document.getElementById('tp-ai');
+    if(aiEl) aiEl.style.display = 'block';
+    document.querySelectorAll('.tp-tab')[0].classList.add('on');
+  }
+}
+
+function selectPhoto(el){
+  document.querySelectorAll('.ph-thumb').forEach(p=>p.classList.remove('sel'));
+  el.classList.add('sel');
+}
+
+function toggleChip(el){ el.classList.toggle('on'); }
+
+function selectPrivacy(el){
+  document.querySelectorAll('.priv-option').forEach(p=>p.classList.remove('on'));
+  el.classList.add('on');
+}
+
+function rewriteStory(){
+  const area = document.querySelector('.story-edit-area');
+  area.value = 'Loading…';
+  setTimeout(()=>{
+    area.value = '"Long before the ceremony, there was a quiet understanding — a knowing glance, a shared silence. Their journey was written in ordinary moments before it became extraordinary."';
+    showToast('Story rewritten with Cinematic + More cinematic direction');
+  },1200);
+}
+
+let toastTimer;
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('vis');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove('vis'),2800);
+}
+
+// Init
+showPage('journey');
+</script>
+</body>
+</html>

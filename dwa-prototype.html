@@ -1,0 +1,809 @@
+<title>Digital Wedding Album</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap">
+<style>
+/* ─── TOKENS ─── */
+:root{
+  --ink:#0E0E10; --espresso:#1C1915; --stone:#6B5E52; --muted:#9C8C80;
+  --champagne:#E8DCD0; --ivory:#F7F2EA; --gold:#C9A96E; --gold-dk:#A08848;
+  --photo-a:linear-gradient(155deg,#0E0806 0%,#3A200A 28%,#8A5828 58%,#C49050 80%,#E8C070 100%);
+  --photo-b:linear-gradient(160deg,#0A0806 0%,#1E1208 35%,#4A2C14 65%,#7A4C28 100%);
+  --photo-c:radial-gradient(ellipse at 38% 38%,#3C2010 0%,#1A0E08 55%,#080606 100%);
+  --photo-d:linear-gradient(135deg,#EAD8C4 0%,#C8A880 45%,#9A7858 80%,#6A5040 100%);
+  --photo-e:radial-gradient(ellipse at 50% 70%,#7A4820 0%,#3A1E0A 55%,#100808 100%);
+  --photo-f:linear-gradient(170deg,#0E0A06 0%,#2A1A0A 40%,#6A4020 70%,#A87040 100%);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{font-size:16px;background:#0E0E10;color:#F7F2EA;font-family:'DM Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+button{cursor:pointer;border:none;background:none;font-family:inherit}
+
+/* ─── OUTER SHELL ─── */
+.shell-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 32px;border-bottom:1px solid rgba(255,255,255,0.07);
+  background:#0E0E10;position:sticky;top:0;z-index:100;
+}
+.brand-name{font-family:'Cormorant Garamond',serif;font-size:0.95rem;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:#C9A96E}
+.brand-sep{width:1px;height:18px;background:rgba(255,255,255,0.15);margin:0 14px}
+.proto-label{font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(247,242,234,0.35)}
+.sg-toggle{font-size:0.7rem;letter-spacing:0.08em;text-transform:uppercase;color:rgba(247,242,234,0.35);border:1px solid rgba(255,255,255,0.1);padding:5px 14px;border-radius:20px;transition:all .2s}
+.sg-toggle:hover{color:#C9A96E;border-color:rgba(201,169,110,0.35)}
+
+.stage{
+  display:grid;grid-template-columns:210px 1fr 210px;
+  min-height:calc(100vh - 57px);align-items:center;padding:32px 0;
+}
+@media(max-width:860px){.stage{grid-template-columns:1fr;padding:20px}.panel{display:none!important}}
+
+.panel-l{padding:0 20px 0 36px}
+.panel-r{padding:0 36px 0 20px}
+.panel-screen-name{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:400;font-style:italic;color:#F7F2EA;margin-bottom:6px;text-wrap:balance}
+.panel-desc{font-size:0.74rem;line-height:1.65;color:rgba(247,242,234,0.38);font-weight:300}
+.slist{list-style:none}
+.slist li{
+  display:flex;align-items:center;gap:8px;padding:7px 0;
+  border-bottom:1px solid rgba(255,255,255,0.05);
+  font-size:0.7rem;letter-spacing:0.03em;
+  color:rgba(247,242,234,0.28);cursor:pointer;transition:color .15s;
+}
+.slist li:last-child{border:none}
+.slist li:hover{color:rgba(247,242,234,0.6)}
+.slist li.on{color:#C9A96E}
+.slist li.on .sn{color:#C9A96E}
+.sn{font-size:0.58rem;min-width:18px;color:rgba(247,242,234,0.18);font-weight:500;letter-spacing:0.06em}
+
+/* ─── PHONE ─── */
+.phone-center{display:flex;flex-direction:column;align-items:center;gap:20px}
+.phone-outer{
+  width:340px;
+  background:linear-gradient(145deg,#2E2820,#1A1510 55%,#0E0C0A);
+  border-radius:46px;padding:14px;
+  box-shadow:0 0 0 1px rgba(255,255,255,0.1),0 0 0 2px rgba(0,0,0,0.8),0 50px 100px rgba(0,0,0,0.9),inset 0 1px 0 rgba(255,255,255,0.1);
+  position:relative;
+}
+.phone-outer::before{content:'';position:absolute;left:-3px;top:100px;width:3px;height:34px;background:#1E1A16;border-radius:2px 0 0 2px}
+.phone-outer::after{content:'';position:absolute;right:-3px;top:130px;width:3px;height:58px;background:#1E1A16;border-radius:0 2px 2px 0}
+.phone-screen{width:312px;height:676px;border-radius:34px;overflow:hidden;background:#F7F2EA;position:relative}
+.dyn-island{position:absolute;top:14px;left:50%;transform:translateX(-50%);width:108px;height:30px;background:#0E0E10;border-radius:18px;z-index:50;pointer-events:none}
+
+/* ─── SCREEN BASE ─── */
+.sc{width:312px;height:676px;display:none;flex-direction:column;position:relative;overflow:hidden;font-family:'DM Sans',sans-serif}
+.sc.on{display:flex}
+
+/* ─── STATUS BARS ─── */
+.sb{display:flex;align-items:center;justify-content:space-between;padding:14px 20px 4px;height:48px;flex-shrink:0;position:relative;z-index:10}
+.st{font-size:0.78rem;font-weight:600;letter-spacing:-0.01em}
+.si{display:flex;align-items:center;gap:4px}
+.sb-dk .st{color:#F7F2EA}
+.sb-lt .st{color:#1C1915}
+
+/* ─── SHARED COMPONENTS ─── */
+.back-nav{display:flex;align-items:center;justify-content:space-between;padding:4px 20px 8px;flex-shrink:0}
+.back-btn{display:flex;align-items:center;gap:4px;font-size:0.76rem;font-weight:500;color:#6B5E52;cursor:pointer}
+.nav-ttl{font-size:0.76rem;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;color:#1C1915}
+.btn-gold{background:#C9A96E;color:#1C1915;font-size:0.78rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;padding:14px;border-radius:2px;text-align:center;cursor:pointer;width:100%}
+.btn-ghost{background:transparent;color:#C9A96E;font-size:0.74rem;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;padding:11px;border-radius:2px;border:1px solid rgba(201,169,110,0.35);text-align:center;cursor:pointer;width:100%}
+.btn-dark{background:#1C1915;color:#F7F2EA;font-size:0.78rem;font-weight:500;letter-spacing:0.06em;padding:14px;border-radius:2px;text-align:center;cursor:pointer;width:100%}
+.step-dots{display:flex;gap:5px;padding:10px 20px 4px;flex-shrink:0}
+.step-dot{height:2.5px;flex:1;border-radius:1px}
+.sd-done,.sd-cur{background:#C9A96E}
+.sd-todo{background:#E8DCD0}
+.step-label{font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;color:#9C8C80;padding:0 20px 12px;flex-shrink:0}
+.fld{padding:0 20px 16px;flex-shrink:0}
+.fl{font-size:0.62rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:#9C8C80;margin-bottom:5px}
+.fi{width:100%;border:none;border-bottom:1px solid #E8DCD0;background:transparent;padding:7px 0;font-family:'DM Sans',sans-serif;font-size:0.88rem;color:#1C1915;outline:none}
+.fi::placeholder{color:#C8B8AC}
+.pill{display:inline-flex;align-items:center;padding:5px 13px;border-radius:20px;font-size:0.68rem;font-weight:500;letter-spacing:0.03em;cursor:pointer;flex-shrink:0}
+.pill-on{background:#C9A96E;color:#1C1915}
+.pill-off{background:#E8DCD0;color:#6B5E52}
+.home-bar{display:flex;align-items:center;justify-content:center;height:26px;flex-shrink:0;margin-top:auto}
+.hi-dk{width:90px;height:3.5px;border-radius:2px;background:rgba(255,255,255,0.22)}
+.hi-lt{width:90px;height:3.5px;border-radius:2px;background:rgba(0,0,0,0.12)}
+
+#s1{background:#0E0E10;color:#F7F2EA}
+.s1-top{display:flex;align-items:center;justify-content:space-between;padding:4px 20px 8px;flex-shrink:0}
+.s1-logo{font-family:'Cormorant Garamond',serif;font-size:0.78rem;font-weight:500;letter-spacing:0.16em;text-transform:uppercase;color:#C9A96E}
+.s1-menu{display:flex;flex-direction:column;gap:3.5px;cursor:pointer}
+.s1-menu span{display:block;width:20px;height:1.5px;background:#F7F2EA}
+.s1-hero{flex:1;position:relative;overflow:hidden}
+.s1-hero-bg{position:absolute;inset:0;background:var(--photo-a);opacity:.18}
+.s1-hero-content{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:24px}
+.s1-eyebrow{font-size:0.6rem;letter-spacing:0.22em;text-transform:uppercase;color:#C9A96E;margin-bottom:12px}
+.s1-h1{font-family:'Cormorant Garamond',serif;font-size:3rem;font-weight:300;line-height:1.0;letter-spacing:-0.01em;color:#F7F2EA;margin-bottom:14px}
+.s1-tagline{font-size:0.8rem;line-height:1.6;color:rgba(247,242,234,0.5);font-weight:300;max-width:210px;margin-bottom:24px}
+.s1-ctarow{display:flex;flex-direction:column;gap:8px;max-width:220px}
+.s1-cta1{background:#C9A96E;color:#0E0E10;font-size:0.76rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;padding:13px 20px;border-radius:2px;cursor:pointer;text-align:center}
+.s1-cta2{color:rgba(247,242,234,0.45);font-size:0.72rem;letter-spacing:0.05em;padding:10px 0;display:flex;align-items:center;gap:6px;cursor:pointer}
+.s1-bottom{flex-shrink:0;padding:0 20px 0}
+.s1-prev-label{font-size:0.58rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(247,242,234,0.25);margin-bottom:8px}
+.s1-thumbs{display:flex;gap:7px;margin-bottom:12px}
+.s1-thumb{flex:1;height:90px;border-radius:4px;overflow:hidden;position:relative;cursor:pointer}
+.s1-thumb-label{position:absolute;bottom:0;left:0;right:0;padding:5px 7px;background:linear-gradient(to top,rgba(14,14,16,0.9),transparent);font-size:0.58rem;color:rgba(247,242,234,0.8);letter-spacing:0.04em}
+.s1-steps{display:flex;gap:0;border-top:1px solid rgba(255,255,255,0.07);padding-top:10px;margin-bottom:0}
+.s1-step{flex:1;text-align:center}
+.s1-step-dot{width:22px;height:22px;border-radius:50%;margin:0 auto 6px;display:flex;align-items:center;justify-content:center;font-size:0.55rem;font-weight:600}
+.s1-step-dot-a{background:rgba(201,169,110,0.12);border:1px solid rgba(201,169,110,0.3);color:#C9A96E}
+.s1-step-dot-b{background:#C9A96E;color:#1C1915}
+.s1-step-lbl{font-size:0.58rem;font-weight:500;letter-spacing:0.03em;color:rgba(247,242,234,0.35)}
+.s1-step-lbl-a{color:#C9A96E;font-weight:600}
+
+#s2{background:#F7F2EA}
+.s2-head{padding:8px 20px 12px;flex-shrink:0}
+.s2-h1{font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:400;color:#1C1915;line-height:1.1;margin-bottom:4px}
+.s2-sub{font-size:0.76rem;color:#9C8C80;font-weight:300}
+.s2-styles-wrap{padding:0 20px 14px;flex-shrink:0}
+.s2-styles{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.sopt{padding:7px 13px;border-radius:2px;font-size:0.7rem;font-weight:500;cursor:pointer;transition:all .15s}
+.sopt-on{background:#C9A96E;color:#1C1915}
+.sopt-off{background:#E8DCD0;color:#6B5E52}
+.s2-footer{padding:0 20px 0;flex-shrink:0}
+
+#s3{background:#F7F2EA}
+.uz{border:1.5px dashed rgba(201,169,110,0.45);border-radius:5px;margin:0 20px;padding:20px;text-align:center;cursor:pointer;background:rgba(201,169,110,0.03);flex-shrink:0}
+.uz-ico{width:38px;height:38px;border-radius:50%;background:rgba(201,169,110,0.12);border:1px solid rgba(201,169,110,0.25);margin:0 auto 10px;display:flex;align-items:center;justify-content:center}
+.uz-p{font-size:0.8rem;font-weight:500;color:#1C1915;margin-bottom:3px}
+.uz-s{font-size:0.68rem;color:#9C8C80}
+.up-wrap{padding:12px 20px;flex-shrink:0}
+.up-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px}
+.up-ct{font-size:0.76rem;font-weight:500;color:#1C1915}
+.up-pct{font-size:0.72rem;color:#C9A96E;font-weight:600}
+.up-track{height:3px;background:#E8DCD0;border-radius:2px}
+.up-fill{height:100%;width:78%;background:#C9A96E;border-radius:2px}
+.up-note{font-size:0.62rem;color:#9C8C80;margin-top:5px}
+.tgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:0 20px;flex-shrink:0}
+.tg{aspect-ratio:1;border-radius:3px;overflow:hidden}
+.s3-tip{margin:10px 20px 0;background:#E8DCD0;border-radius:3px;padding:10px 12px;font-size:0.68rem;line-height:1.55;color:#6B5E52;flex-shrink:0}
+.s3-tip strong{color:#1C1915}
+.s3-footer{padding:10px 20px 0;flex-shrink:0}
+
+#s4{background:#1C1915;color:#F7F2EA}
+.s4-skip{text-align:right;padding:4px 20px 0;font-size:0.7rem;color:rgba(247,242,234,0.25);flex-shrink:0}
+.s4-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px 24px}
+.orbit{position:relative;width:148px;height:148px;margin-bottom:24px}
+.ring{position:absolute;border-radius:50%;animation:spin linear infinite}
+.r1{inset:0;border:1px solid rgba(201,169,110,0.12)}
+.r2{inset:14px;border-top:2px solid #C9A96E;border-right:2px solid transparent;border-bottom:2px solid transparent;border-left:2px solid transparent;animation-duration:2.2s}
+.r3{inset:28px;border-top:1px solid rgba(201,169,110,0.35);border-right:1px solid rgba(201,169,110,0.35);border-bottom:1px solid transparent;border-left:1px solid transparent;animation-duration:3.8s;animation-direction:reverse}
+.orbit-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.o-pct{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:300;color:#F7F2EA;line-height:1}
+.o-lbl{font-size:0.58rem;letter-spacing:0.1em;color:rgba(247,242,234,0.3);margin-top:2px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.s4-h{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:300;font-style:italic;text-align:center;color:#F7F2EA;margin-bottom:4px}
+.s4-sh{font-size:0.7rem;color:rgba(247,242,234,0.3);text-align:center;margin-bottom:20px}
+.s4-steps{width:100%;max-width:230px}
+.s4-row{display:flex;align-items:center;gap:9px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:0.7rem}
+.s4-row:last-child{border:none}
+.sico{width:15px;height:15px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.5rem;flex-shrink:0}
+.s-done{background:rgba(201,169,110,0.15);color:#C9A96E}
+.s-cur{border:1.5px solid #C9A96E;animation:pb 1.5s ease-in-out infinite}
+.s-todo{border:1px solid rgba(255,255,255,0.1)}
+@keyframes pb{0%,100%{border-color:rgba(201,169,110,0.35)}50%{border-color:#C9A96E}}
+.t-done{color:rgba(247,242,234,0.38)}
+.t-cur{color:#F7F2EA}
+.t-todo{color:rgba(247,242,234,0.18)}
+.t-note{margin-left:auto;font-size:0.58rem;color:rgba(247,242,234,0.2)}
+.s4-est{margin-top:16px;font-size:0.66rem;color:rgba(247,242,234,0.2);text-align:center}
+
+#s5{background:#F7F2EA}
+.s5-sum{background:#1C1915;padding:12px 20px;flex-shrink:0}
+.s5-sum-main{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:400;color:#F7F2EA}
+.s5-sum-sub{font-size:0.65rem;color:rgba(247,242,234,0.38);margin-top:2px;display:flex;justify-content:space-between;align-items:center}
+.s5-regen{font-size:0.68rem;color:#C9A96E;cursor:pointer}
+.s5-cats{display:flex;gap:5px;padding:10px 20px;overflow-x:auto;flex-shrink:0}
+.s5-cats::-webkit-scrollbar{display:none}
+.s5-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;flex-shrink:0}
+.s5-cell{aspect-ratio:1;position:relative;overflow:hidden;cursor:pointer}
+.s5-cell.sel::before{content:'';position:absolute;top:5px;right:5px;width:16px;height:16px;background:#C9A96E;border-radius:50%;z-index:2}
+.s5-cell.dim::after{content:'';position:absolute;inset:0;background:rgba(247,242,234,0.62)}
+.s5-foot{padding:10px 20px;flex-shrink:0}
+.s5-foot-note{font-size:0.64rem;color:#9C8C80;text-align:center;margin-bottom:8px}
+
+#s6{color:#F7F2EA}
+.s6-photo{position:absolute;inset:0;background:var(--photo-a)}
+.s6-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(14,14,16,0.32) 0%,rgba(14,14,16,0.08) 35%,rgba(14,14,16,0.18) 65%,rgba(14,14,16,0.72) 100%)}
+.s6-content{position:absolute;inset:0;display:flex;flex-direction:column}
+.s6-top{flex-shrink:0}
+.s6-spacer{flex:1}
+.s6-main{text-align:center;padding:0 28px;flex-shrink:0}
+.s6-eye{font-size:0.58rem;letter-spacing:0.25em;text-transform:uppercase;color:rgba(247,242,234,0.45);margin-bottom:10px}
+.s6-names{font-family:'Cormorant Garamond',serif;font-size:2.6rem;font-weight:300;line-height:1.05;letter-spacing:0.03em;color:#F7F2EA;margin-bottom:12px}
+.s6-date{font-size:0.68rem;letter-spacing:0.2em;color:rgba(247,242,234,0.55);margin-bottom:4px}
+.s6-loc{font-size:0.62rem;letter-spacing:0.14em;color:rgba(247,242,234,0.35);margin-bottom:28px}
+.s6-scroll{display:flex;flex-direction:column;align-items:center;gap:5px;font-size:0.58rem;letter-spacing:0.1em;color:rgba(247,242,234,0.28)}
+.s6-line{width:1px;height:22px;background:linear-gradient(to bottom,transparent,rgba(247,242,234,0.28))}
+.s6-dots{display:flex;justify-content:center;gap:5px;padding:14px 0 6px}
+.al-dot{width:4px;height:4px;border-radius:50%;background:rgba(247,242,234,0.2);cursor:pointer}
+.al-dot.on{background:#C9A96E;width:16px;border-radius:2px}
+
+#s7{background:#0E0E10;color:#F7F2EA}
+.s7-chap{font-size:0.58rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(247,242,234,0.28);padding:12px 24px 0;flex-shrink:0}
+.s7-q{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:300;line-height:1.15;font-style:italic;color:#F7F2EA;padding:16px 24px 14px;flex-shrink:0;text-wrap:balance}
+.s7-photo{width:100%;height:240px;flex-shrink:0;position:relative;overflow:hidden}
+.s7-cap{position:absolute;bottom:10px;right:14px;font-size:0.55rem;letter-spacing:0.08em;color:rgba(247,242,234,0.3);font-style:italic}
+.s7-text{padding:16px 24px 0;flex-shrink:0}
+.s7-text p{font-size:0.77rem;line-height:1.75;color:rgba(247,242,234,0.45);font-weight:300}
+.s7-nav{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;margin-top:auto;flex-shrink:0}
+.s7-prev{font-size:0.66rem;color:rgba(247,242,234,0.22)}
+.s7-next{font-size:0.66rem;color:#C9A96E;display:flex;align-items:center;gap:4px;cursor:pointer;font-style:italic}
+
+#s8{background:#0E0E10;color:#F7F2EA}
+.s8-hero{width:100%;height:190px;flex-shrink:0;position:relative;overflow:hidden}
+.s8-over{position:absolute;bottom:0;left:0;right:0;padding:10px 20px;background:linear-gradient(to top,rgba(14,14,16,0.95),transparent)}
+.s8-chap{font-size:0.56rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(247,242,234,0.38);margin-bottom:3px}
+.s8-title{font-family:'Cormorant Garamond',serif;font-size:1.7rem;font-weight:300;color:#F7F2EA}
+.s8-two{display:grid;grid-template-columns:1fr 1fr;gap:3px;flex-shrink:0}
+.s8-sq{height:120px;position:relative;overflow:hidden}
+.s8-cap-block{padding:14px 20px;flex-shrink:0}
+.s8-cap-date{font-size:0.58rem;letter-spacing:0.18em;text-transform:uppercase;color:#C9A96E;margin-bottom:3px}
+.s8-cap-q{font-family:'Cormorant Garamond',serif;font-size:1.05rem;font-weight:400;font-style:italic;color:rgba(247,242,234,0.65);line-height:1.4}
+.s8-wide{width:100%;height:120px;flex-shrink:0;position:relative;overflow:hidden}
+.s8-wide-label{position:absolute;bottom:8px;left:0;right:0;text-align:center;font-family:'Cormorant Garamond',serif;font-size:0.85rem;font-style:italic;color:rgba(247,242,234,0.5)}
+.s8-nav{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;margin-top:auto;flex-shrink:0}
+.s8-back{font-size:0.66rem;color:rgba(247,242,234,0.22)}
+.s8-fwd{font-size:0.66rem;color:#C9A96E;font-style:italic;cursor:pointer;display:flex;align-items:center;gap:4px}
+
+#s9{background:#F7F2EA}
+.s9-hdr{background:#1C1915;padding:12px 20px 14px;flex-shrink:0}
+.s9-hdr-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.s9-back-lt{font-size:0.7rem;color:rgba(247,242,234,0.38);cursor:pointer}
+.s9-share{font-size:0.68rem;color:#C9A96E;cursor:pointer}
+.s9-h1{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:400;color:#F7F2EA;margin-bottom:2px}
+.s9-ct{font-size:0.66rem;color:rgba(247,242,234,0.38)}
+.s9-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;padding:2px 0;flex-shrink:0}
+.s9-cell{aspect-ratio:1;position:relative;overflow:hidden}
+.s9-name{position:absolute;bottom:3px;left:4px;right:4px;font-size:0.52rem;color:rgba(247,242,234,0.7);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.s9-msgs{padding:10px 16px;flex-shrink:0}
+.s9-mlbl{font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;color:#9C8C80;margin-bottom:8px}
+.s9-mc{background:#fff;border-radius:3px;padding:10px 12px;border:1px solid #E8DCD0}
+.s9-mq{font-family:'Cormorant Garamond',serif;font-size:0.9rem;font-style:italic;color:#1C1915;line-height:1.45;margin-bottom:4px}
+.s9-ma{font-size:0.6rem;color:#9C8C80;font-weight:500}
+.s9-add{margin:8px 16px 0;background:#1C1915;color:#F7F2EA;text-align:center;padding:12px;border-radius:2px;font-size:0.76rem;font-weight:500;letter-spacing:0.06em;cursor:pointer;flex-shrink:0}
+.s9-add span{display:block;font-size:0.6rem;color:rgba(247,242,234,0.38);margin-top:2px;font-weight:300}
+
+#s10{background:#F7F2EA}
+.s10-body{padding:8px 20px 0;flex:1;display:flex;flex-direction:column}
+.s10-h1{font-family:'Cormorant Garamond',serif;font-size:1.7rem;font-weight:400;color:#1C1915;margin-bottom:3px}
+.s10-sub{font-size:0.74rem;color:#9C8C80;font-weight:300;margin-bottom:16px}
+.s10-fl{font-size:0.62rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:#9C8C80;margin-bottom:8px}
+.priv-tog{display:flex;border:1px solid #E8DCD0;border-radius:2px;overflow:hidden;margin-bottom:14px}
+.pt{flex:1;padding:9px 6px;text-align:center;font-size:0.7rem;font-weight:500;cursor:pointer}
+.pt-on{background:#1C1915;color:#F7F2EA}
+.pt-off{background:#fff;color:#9C8C80}
+.link-block{background:#fff;border:1px solid #E8DCD0;border-radius:2px;padding:10px 12px;display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.link-url{font-size:0.7rem;color:#1C1915;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.copy-btn{font-size:0.66rem;color:#C9A96E;font-weight:600;cursor:pointer;flex-shrink:0}
+.qr-block{background:#fff;border:1px solid #E8DCD0;border-radius:2px;padding:12px;display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.qr-sq{width:58px;height:58px;flex-shrink:0;border-radius:2px;background:repeating-conic-gradient(#1C1915 0% 25%,#F7F2EA 0% 50%) 0 0/7px 7px;opacity:.65}
+.qr-info-h{font-size:0.74rem;font-weight:500;color:#1C1915;margin-bottom:2px}
+.qr-info-s{font-size:0.62rem;color:#9C8C80;line-height:1.5}
+.share-btns{display:flex;flex-direction:column;gap:7px;margin-bottom:14px}
+.btn-wa{background:#25D366;color:#fff;font-size:0.76rem;font-weight:500;padding:12px;border-radius:2px;text-align:center;cursor:pointer}
+.btn-cp{background:#E8DCD0;color:#1C1915;font-size:0.76rem;font-weight:500;padding:12px;border-radius:2px;text-align:center;cursor:pointer}
+.stats-row{display:flex;gap:0;border-top:1px solid #E8DCD0;padding-top:12px;margin-top:auto}
+.stat{flex:1;text-align:center}
+.stat-n{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:400;color:#C9A96E}
+.stat-l{font-size:0.6rem;color:#9C8C80}
+
+.proto-nav{display:flex;align-items:center;justify-content:center;gap:18px}
+.nav-arr{width:38px;height:38px;border-radius:50%;border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;cursor:pointer;color:rgba(255,255,255,0.35);font-size:1rem;transition:all .2s}
+.nav-arr:hover{border-color:rgba(201,169,110,0.35);color:#C9A96E}
+.dots{display:flex;gap:4px;align-items:center}
+.dot{width:4px;height:4px;border-radius:50%;background:rgba(255,255,255,0.18);cursor:pointer;transition:all .2s}
+.dot.on{background:#C9A96E;width:14px;border-radius:2px}
+
+.sg{border-top:1px solid rgba(255,255,255,0.07);padding:56px 40px;max-width:860px;margin:0 auto;display:none}
+.sg.vis{display:block}
+.sg-sec{margin-bottom:44px}
+.sg-sec-label{font-size:0.58rem;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:#C9A96E;margin-bottom:16px}
+.swatches{display:flex;gap:10px;flex-wrap:wrap}
+.swatch{display:flex;flex-direction:column;align-items:center;gap:6px}
+.sw{width:56px;height:56px;border-radius:3px;border:1px solid rgba(255,255,255,0.07)}
+.swn{font-size:0.58rem;color:rgba(247,242,234,0.38)}
+.swh{font-size:0.58rem;color:rgba(247,242,234,0.22);font-variant-numeric:tabular-nums}
+.typo-rows{border-left:1px solid rgba(255,255,255,0.07);padding-left:20px;display:flex;flex-direction:column;gap:12px}
+.ty-d{font-family:'Cormorant Garamond',serif;font-size:2.2rem;font-weight:300;color:#F7F2EA;line-height:1.1}
+.ty-i{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-style:italic;font-weight:400;color:rgba(247,242,234,0.65)}
+.ty-b{font-size:0.84rem;color:rgba(247,242,234,0.45);line-height:1.7;font-weight:300}
+.ty-l{font-size:0.62rem;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:#9C8C80}
+.comp-row{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start}
+.c-btn{padding:12px 18px;font-size:0.74rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;border-radius:2px;cursor:pointer}
+.c-gold{background:#C9A96E;color:#1C1915;border:none}
+.c-dark{background:#1C1915;color:#F7F2EA;border:none}
+.c-ghost{background:transparent;color:#C9A96E;border:1px solid rgba(201,169,110,0.32)}
+.c-pill{padding:5px 12px;border-radius:20px;font-size:0.68rem;font-weight:500;cursor:pointer;border:none}
+.c-pa{background:#C9A96E;color:#1C1915}
+.c-pi{background:#E8DCD0;color:#6B5E52}
+
+.site-footer{border-top:1px solid rgba(255,255,255,0.05);padding:20px 40px;display:flex;align-items:center;justify-content:space-between}
+.ft-brand{font-family:'Cormorant Garamond',serif;font-size:0.8rem;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:#C9A96E}
+.ft-copy{font-size:0.62rem;color:rgba(247,242,234,0.18)}
+</style>
+
+.nav-arr:hover{border-color:rgba(201,169,110,0.35);color:#C9A96E}
+.dots{display:flex;gap:4px;align-items:center}
+.dot{width:4px;height:4px;border-radius:50%;background:rgba(255,255,255,0.18);cursor:pointer;transition:all .2s}
+.dot.on{background:#C9A96E;width:14px;border-radius:2px}
+
+/* ─── STYLE GUIDE ─── */
+.sg{border-top:1px solid rgba(255,255,255,0.07);padding:56px 40px;max-width:860px;margin:0 auto;display:none}
+.sg.vis{display:block}
+.sg-sec{margin-bottom:44px}
+.sg-sec-label{font-size:0.58rem;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:#C9A96E;margin-bottom:16px}
+.swatches{display:flex;gap:10px;flex-wrap:wrap}
+.swatch{display:flex;flex-direction:column;align-items:center;gap:6px}
+.sw{width:56px;height:56px;border-radius:3px;border:1px solid rgba(255,255,255,0.07)}
+.swn{font-size:0.58rem;color:rgba(247,242,234,0.38)}
+.swh{font-size:0.58rem;color:rgba(247,242,234,0.22);font-variant-numeric:tabular-nums}
+.typo-rows{border-left:1px solid rgba(255,255,255,0.07);padding-left:20px;display:flex;flex-direction:column;gap:12px}
+.ty-d{font-family:'Cormorant Garamond',serif;font-size:2.2rem;font-weight:300;color:#F7F2EA;line-height:1.1}
+.ty-i{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-style:italic;font-weight:400;color:rgba(247,242,234,0.65)}
+.ty-b{font-size:0.84rem;color:rgba(247,242,234,0.45);line-height:1.7;font-weight:300}
+.ty-l{font-size:0.62rem;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:#9C8C80}
+.comp-row{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start}
+.c-btn{padding:12px 18px;font-size:0.74rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;border-radius:2px;cursor:pointer}
+.c-gold{background:#C9A96E;color:#1C1915;border:none}
+.c-dark{background:#1C1915;color:#F7F2EA;border:none}
+.c-ghost{background:transparent;color:#C9A96E;border:1px solid rgba(201,169,110,0.32)}
+.c-pill{padding:5px 12px;border-radius:20px;font-size:0.68rem;font-weight:500;cursor:pointer;border:none}
+.c-pa{background:#C9A96E;color:#1C1915}
+.c-pi{background:#E8DCD0;color:#6B5E52}
+
+.site-footer{border-top:1px solid rgba(255,255,255,0.05);padding:20px 40px;display:flex;align-items:center;justify-content:space-between}
+.ft-brand{font-family:'Cormorant Garamond',serif;font-size:0.8rem;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:#C9A96E}
+.ft-copy{font-size:0.62rem;color:rgba(247,242,234,0.18)}
+</style>
+
+<!-- HEADER -->
+<header class="shell-header">
+  <div style="display:flex;align-items:center">
+    <span class="brand-name">Optima Digital Selaras</span>
+    <div class="brand-sep"></div>
+    <span class="proto-label">Digital Wedding Album · Prototype v1</span>
+  </div>
+  <button class="sg-toggle" onclick="toggleSG()">Style Guide ↓</button>
+</header>
+
+<!-- STAGE -->
+<main class="stage">
+
+  <!-- LEFT PANEL -->
+  <aside class="panel panel-l">
+    <div class="panel-screen-name" id="pname">Landing Page</div>
+    <div class="panel-desc" id="pdesc">Marketing homepage — Album is the hero product, Invitation is secondary.</div>
+  </aside>
+
+  <!-- PHONE + DOTS -->
+  <div class="phone-center">
+    <div style="position:relative;width:340px">
+      <div class="phone-outer">
+        <div class="phone-screen">
+          <div class="dyn-island"></div>
+
+          <!-- ══ S1: LANDING ══════════════════════════ -->
+          <div class="sc on" id="s1">
+            <div class="sb sb-dk" style="background:#0E0E10">
+              <span class="st">9:41</span>
+              <div class="si">
+                <svg width="14" height="11" viewBox="0 0 14 11" fill="#F7F2EA" opacity=".8"><rect x="0" y="3" width="3" height="8" rx=".5"/><rect x="4" y="2" width="3" height="9" rx=".5"/><rect x="8" y=".5" width="3" height="10.5" rx=".5"/><rect x="12" y="0" width="2" height="11" rx=".5" opacity=".3"/></svg>
+                <svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="21" height="11" rx="3.5" stroke="#F7F2EA" stroke-opacity=".3"/><rect x="2" y="2" width="15" height="8" rx="2" fill="#F7F2EA"/><path d="M23 4v4a2 2 0 000-4z" fill="#F7F2EA" opacity=".35"/></svg>
+              </div>
+            </div>
+            <div class="s1-top">
+              <span class="s1-logo">Optima</span>
+              <div class="s1-menu"><span></span><span></span><span></span></div>
+            </div>
+            <div class="s1-hero">
+              <div class="s1-hero-bg"></div>
+              <div class="s1-hero-content">
+                <div class="s1-eyebrow">AI-Powered Wedding Memory</div>
+                <h1 class="s1-h1">Digital<br>Wedding<br>Album</h1>
+                <p class="s1-tagline">Your wedding moments, beautifully preserved. AI transforms your photos into a cinematic story.</p>
+                <div class="s1-ctarow">
+                  <div class="s1-cta1" onclick="goto(1)">Create My Album</div>
+                  <div class="s1-cta2" onclick="goto(5)">See an example →</div>
+                </div>
+              </div>
+            </div>
+            <div class="s1-bottom">
+              <div class="s1-prev-label">Album Preview</div>
+              <div class="s1-thumbs">
+                <div class="s1-thumb" onclick="goto(5)" style="background:var(--photo-a)"><div class="s1-thumb-label">Our Story</div></div>
+                <div class="s1-thumb" onclick="goto(6)" style="background:var(--photo-e)"><div class="s1-thumb-label">Ceremony</div></div>
+                <div class="s1-thumb" onclick="goto(7)" style="background:var(--photo-c)"><div class="s1-thumb-label">Memories</div></div>
+              </div>
+              <div class="s1-steps">
+                <div class="s1-step"><div class="s1-step-dot s1-step-dot-a">1</div><div class="s1-step-lbl">Invitation</div></div>
+                <div class="s1-step"><div class="s1-step-dot s1-step-dot-a">2</div><div class="s1-step-lbl">Capture</div></div>
+                <div class="s1-step"><div class="s1-step-dot s1-step-dot-b">3</div><div class="s1-step-lbl s1-step-lbl-a">Album</div></div>
+              </div>
+            </div>
+            <div class="home-bar"><div class="hi-dk"></div></div>
+          </div>
+
+          <!-- ══ S2: CREATE ALBUM ═════════════════════ -->
+          <div class="sc" id="s2">
+            <div class="sb sb-lt"><span class="st">9:41</span><div class="si"><svg width="14" height="11" viewBox="0 0 14 11" fill="#1C1915"><rect x="0" y="3" width="3" height="8" rx=".5"/><rect x="4" y="2" width="3" height="9" rx=".5"/><rect x="8" y=".5" width="3" height="10.5" rx=".5"/></svg><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="21" height="11" rx="3.5" stroke="#1C1915" stroke-opacity=".3"/><rect x="2" y="2" width="15" height="8" rx="2" fill="#1C1915"/></svg></div></div>
+            <div class="back-nav">
+              <button class="back-btn" onclick="goto(-1)"><svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M6 1L1 6l5 5" stroke="#6B5E52" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Back</button>
+              <span class="nav-ttl"></span><span></span>
+            </div>
+            <div class="step-dots"><div class="step-dot sd-cur"></div><div class="step-dot sd-todo"></div><div class="step-dot sd-todo"></div></div>
+            <div class="step-label">Step 1 of 3 — Album Setup</div>
+            <div class="s2-head">
+              <div class="s2-h1">Let's begin<br>your story.</div>
+              <div class="s2-sub">Tell us about your wedding day.</div>
+            </div>
+            <div class="fld"><div class="fl">Couple Names</div><input class="fi" value="Yulius &amp; Ananda" readonly></div>
+            <div class="fld"><div class="fl">Wedding Date</div><input class="fi" value="12 · 08 · 2026" readonly></div>
+            <div class="fld"><div class="fl">Location</div><input class="fi" value="Ubud, Bali, Indonesia" readonly></div>
+            <div class="s2-styles-wrap">
+              <div class="fl">Album Style</div>
+              <div class="s2-styles">
+                <div class="sopt sopt-on">Cinematic</div>
+                <div class="sopt sopt-off">Editorial</div>
+                <div class="sopt sopt-off">Romantic</div>
+                <div class="sopt sopt-off">Minimal</div>
+                <div class="sopt sopt-off">Heritage</div>
+              </div>
+            </div>
+            <div style="flex:1"></div>
+            <div class="s2-footer"><button class="btn-gold" onclick="goto(1)">Continue →</button></div>
+            <div class="home-bar"><div class="hi-lt"></div></div>
+          </div>
+
+          <!-- ══ S3: UPLOAD ═══════════════════════════ -->
+          <div class="sc" id="s3">
+            <div class="sb sb-lt"><span class="st">9:41</span><div class="si"><svg width="14" height="11" viewBox="0 0 14 11" fill="#1C1915"><rect x="0" y="3" width="3" height="8" rx=".5"/><rect x="4" y="2" width="3" height="9" rx=".5"/><rect x="8" y=".5" width="3" height="10.5" rx=".5"/></svg></div></div>
+            <div class="back-nav"><button class="back-btn" onclick="goto(-1)"><svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M6 1L1 6l5 5" stroke="#6B5E52" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Back</button><span class="nav-ttl">Upload</span><span></span></div>
+            <div class="step-dots"><div class="step-dot sd-done"></div><div class="step-dot sd-cur"></div><div class="step-dot sd-todo"></div></div>
+            <div class="step-label">Step 2 of 3 — Upload Photos &amp; Videos</div>
+            <div class="uz">
+              <div class="uz-ico"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 13V7M9 7L6.5 9.5M9 7L11.5 9.5" stroke="#C9A96E" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 13.5a3.5 3.5 0 01-.5-6.9A5.5 5.5 0 0115.5 8.5a3.5 3.5 0 01-.5 7" stroke="#C9A96E" stroke-width="1.4" stroke-linecap="round"/></svg></div>
+              <div class="uz-p">Tap to select photos &amp; videos</div>
+              <div class="uz-s">JPG · PNG · MP4 · MOV</div>
+            </div>
+            <div class="up-wrap">
+              <div class="up-row"><span class="up-ct">127 of 163 uploading…</span><span class="up-pct">78%</span></div>
+              <div class="up-track"><div class="up-fill"></div></div>
+              <div class="up-note">4 videos · 2.4 GB · ~3 min remaining</div>
+            </div>
+            <div style="font-size:.66rem;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:#9C8C80;padding:0 20px 6px;flex-shrink:0">Recent</div>
+            <div class="tgrid">
+              <div class="tg" style="background:var(--photo-a)"></div>
+              <div class="tg" style="background:var(--photo-c)"></div>
+              <div class="tg" style="background:var(--photo-e)"></div>
+              <div class="tg" style="background:var(--photo-d)"></div>
+              <div class="tg" style="background:var(--photo-b)"></div>
+              <div class="tg" style="background:var(--photo-f)"></div>
+              <div class="tg" style="background:var(--photo-a);opacity:.55"></div>
+              <div class="tg" style="background:#E8DCD0;display:flex;align-items:center;justify-content:center;font-size:.7rem;color:#9C8C80">+120</div>
+            </div>
+            <div class="s3-tip"><strong>Include everything.</strong> AI will select the best 80–100 photos — don't edit before uploading.</div>
+            <div style="flex:1"></div>
+            <div class="s3-footer"><button class="btn-gold" onclick="goto(1)">Done — Process Photos →</button></div>
+            <div class="home-bar"><div class="hi-lt"></div></div>
+          </div>
+          <!-- ══ S4: AI PROCESSING ═══════════════════ -->
+          <div class="sc" id="s4">
+            <div class="sb sb-dk" style="background:#1C1915"><span class="st">9:41</span><div class="si"><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="21" height="11" rx="3.5" stroke="#F7F2EA" stroke-opacity=".3"/><rect x="2" y="2" width="15" height="8" rx="2" fill="#F7F2EA"/></svg></div></div>
+            <div class="s4-skip">Skip for now</div>
+            <div class="s4-body">
+              <div class="orbit">
+                <div class="ring r1"></div>
+                <div class="ring r2"></div>
+                <div class="ring r3"></div>
+                <div class="orbit-center"><div class="o-pct">65%</div><div class="o-lbl">Complete</div></div>
+              </div>
+              <div class="s4-h">Creating your story…</div>
+              <div class="s4-sh">327 photos · AI is at work</div>
+              <div class="s4-steps">
+                <div class="s4-row"><div class="sico s-done">✓</div><span class="t-done">327 photos analyzed</span></div>
+                <div class="s4-row"><div class="sico s-done">✓</div><span class="t-done">12 duplicates removed</span><span class="t-note">–12</span></div>
+                <div class="s4-row"><div class="sico s-done">✓</div><span class="t-done">8 blurry photos filtered</span><span class="t-note">–8</span></div>
+                <div class="s4-row"><div class="sico s-cur"></div><span class="t-cur">Recognizing wedding moments</span></div>
+                <div class="s4-row"><div class="sico s-todo"></div><span class="t-todo">Grouping categories</span></div>
+                <div class="s4-row"><div class="sico s-todo"></div><span class="t-todo">Selecting the best moments</span></div>
+                <div class="s4-row"><div class="sico s-todo"></div><span class="t-todo">Building your story</span></div>
+              </div>
+              <div class="s4-est">Usually 3–5 minutes · We'll notify you</div>
+            </div>
+            <div class="home-bar"><div class="hi-dk"></div></div>
+          </div>
+
+          <!-- ══ S5: PHOTO SELECTION ═════════════════ -->
+          <div class="sc" id="s5">
+            <div class="sb sb-dk" style="background:#1C1915"><span class="st">9:41</span><div class="si"><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="21" height="11" rx="3.5" stroke="#F7F2EA" stroke-opacity=".3"/><rect x="2" y="2" width="15" height="8" rx="2" fill="#F7F2EA"/></svg></div></div>
+            <div class="s5-sum">
+              <div class="s5-sum-main">86 photos selected</div>
+              <div class="s5-sum-sub"><span>from 307 analyzed · tap to include/exclude</span><span class="s5-regen">Regenerate</span></div>
+            </div>
+            <div class="s5-cats">
+              <div class="pill pill-on">All (86)</div>
+              <div class="pill pill-off">Ceremony (24)</div>
+              <div class="pill pill-off">Couple (18)</div>
+              <div class="pill pill-off">Family (15)</div>
+              <div class="pill pill-off">Details (12)</div>
+              <div class="pill pill-off">Reception (8)</div>
+            </div>
+            <div class="s5-grid">
+              <div class="s5-cell sel" style="background:var(--photo-a)"></div>
+              <div class="s5-cell sel" style="background:var(--photo-c)"></div>
+              <div class="s5-cell sel" style="background:var(--photo-e)"></div>
+              <div class="s5-cell sel" style="background:var(--photo-d)"></div>
+              <div class="s5-cell dim" style="background:var(--photo-b)"></div>
+              <div class="s5-cell sel" style="background:var(--photo-f)"></div>
+              <div class="s5-cell sel" style="background:var(--photo-a)"></div>
+              <div class="s5-cell dim" style="background:var(--photo-c)"></div>
+              <div class="s5-cell sel" style="background:var(--photo-e)"></div>
+              <div class="s5-cell sel" style="background:var(--photo-d)"></div>
+              <div class="s5-cell sel" style="background:var(--photo-f)"></div>
+              <div class="s5-cell sel" style="background:var(--photo-a)"></div>
+            </div>
+            <div class="s5-foot">
+              <div class="s5-foot-note">Tap any photo to include or remove</div>
+              <button class="btn-gold" onclick="goto(1)">Continue with 86 Photos →</button>
+            </div>
+            <div class="home-bar"><div class="hi-lt"></div></div>
+          </div>
+
+          <!-- ══ S6: ALBUM COVER ════════════════════ -->
+          <div class="sc" id="s6">
+            <div class="s6-photo"></div>
+            <div class="s6-overlay"></div>
+            <div class="s6-content">
+              <div class="s6-top">
+                <div class="sb sb-dk" style="background:transparent"><span class="st">9:41</span></div>
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:0 20px">
+                  <svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M6 1L1 6l5 5" stroke="rgba(247,242,234,0.35)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  <span style="font-size:.56rem;letter-spacing:.16em;color:rgba(247,242,234,.3);text-transform:uppercase">Album</span>
+                  <svg width="18" height="4" viewBox="0 0 18 4" fill="rgba(247,242,234,0.4)"><circle cx="2" cy="2" r="1.5"/><circle cx="9" cy="2" r="1.5"/><circle cx="16" cy="2" r="1.5"/></svg>
+                </div>
+              </div>
+              <div class="s6-spacer"></div>
+              <div class="s6-main">
+                <div class="s6-eye">The Wedding of</div>
+                <div class="s6-names">Yulius<br>&amp;<br>Ananda</div>
+                <div class="s6-date">12 · 08 · 2026</div>
+                <div class="s6-loc">Ubud · Bali · Indonesia</div>
+                <div class="s6-scroll"><div class="s6-line"></div><span>Scroll to begin</span></div>
+              </div>
+              <div class="s6-dots">
+                <div class="al-dot on"></div>
+                <div class="al-dot" onclick="goto(1)"></div>
+                <div class="al-dot" onclick="goto(2)"></div>
+                <div class="al-dot" onclick="goto(3)"></div>
+                <div class="al-dot" onclick="goto(4)"></div>
+                <div class="al-dot" onclick="goto(5)"></div>
+                <div class="al-dot" onclick="goto(6)"></div>
+              </div>
+              <div class="home-bar"><div class="hi-dk"></div></div>
+            </div>
+          </div>
+
+          <!-- ══ S7: OUR STORY ══════════════════════ -->
+          <div class="sc" id="s7" style="background:#0E0E10">
+            <div class="sb sb-dk" style="background:#0E0E10"><span class="st">9:41</span></div>
+            <div class="s7-chap">Chapter One</div>
+            <div class="s7-q">It all started<br>with a simple<br>hello.</div>
+            <div class="s7-photo" style="background:var(--photo-f)">
+              <div style="position:absolute;inset:0;background:var(--photo-f)"></div>
+              <div class="s7-cap">Ubud, Bali · 2024</div>
+            </div>
+            <div class="s7-text"><p>Two people found each other, and everything changed. This is not just the story of a wedding — it's the beginning of a life lived together, beautifully and deliberately.</p></div>
+            <div class="s7-nav">
+              <span class="s7-prev">← Cover</span>
+              <span class="s7-next" onclick="goto(1)">The Ceremony →</span>
+            </div>
+            <div class="home-bar"><div class="hi-dk"></div></div>
+          </div>
+
+          <!-- ══ S8: CEREMONY ═══════════════════════ -->
+          <div class="sc" id="s8" style="background:#0E0E10">
+            <div class="s8-hero" style="background:var(--photo-e)">
+              <div style="position:absolute;inset:0;background:var(--photo-e)"></div>
+              <div class="sb sb-dk" style="background:transparent;position:absolute;top:0;left:0;right:0;z-index:5"><span class="st">9:41</span></div>
+              <div class="s8-over">
+                <div class="s8-chap">Chapter Two</div>
+                <div class="s8-title">The Ceremony</div>
+              </div>
+            </div>
+            <div class="s8-two">
+              <div class="s8-sq" style="background:var(--photo-c)"></div>
+              <div class="s8-sq" style="background:var(--photo-b)"></div>
+            </div>
+            <div class="s8-cap-block">
+              <div class="s8-cap-date">12 · 08 · 2026 · 10.00 WIB</div>
+              <div class="s8-cap-q">"In the presence of family and God,<br>they became one."</div>
+            </div>
+            <div class="s8-wide" style="background:var(--photo-a)">
+              <div style="position:absolute;inset:0;background:var(--photo-a)"></div>
+              <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(14,14,16,.7),transparent)"></div>
+              <div class="s8-wide-label">Akad Nikah · Ubud</div>
+            </div>
+            <div class="s8-nav">
+              <span class="s8-back">← Our Story</span>
+              <span class="s8-fwd" onclick="goto(1)">The Celebration →</span>
+            </div>
+            <div class="home-bar"><div class="hi-dk"></div></div>
+          </div>
+
+          <!-- ══ S9: GUEST MEMORIES ══════════════════ -->
+          <div class="sc" id="s9" style="background:#F7F2EA">
+            <div class="sb sb-lt"><span class="st" style="color:#F7F2EA">9:41</span></div>
+            <div class="s9-hdr">
+              <div class="s9-hdr-top"><span class="s9-back-lt" onclick="goto(-1)">← Album</span><span class="s9-share">Share link</span></div>
+              <div class="s9-h1">Guest Memories</div>
+              <div class="s9-ct">138 memories from 89 guests</div>
+            </div>
+            <div class="s9-grid">
+              <div class="s9-cell" style="background:var(--photo-d)"><div class="s9-name">Keluarga Santoso</div></div>
+              <div class="s9-cell" style="background:var(--photo-a)"><div class="s9-name">Rina &amp; Dani</div></div>
+              <div class="s9-cell" style="background:var(--photo-e)"><div class="s9-name">Pak Hendra</div></div>
+              <div class="s9-cell" style="background:var(--photo-f)"><div class="s9-name">Tim Kantor</div></div>
+              <div class="s9-cell" style="background:var(--photo-b)"><div class="s9-name">Tante Sari</div></div>
+              <div class="s9-cell" style="background:var(--photo-c)"><div class="s9-name">Friends</div></div>
+            </div>
+            <div class="s9-msgs">
+              <div class="s9-mlbl">Messages</div>
+              <div class="s9-mc">
+                <div class="s9-mq">"Selamat berbahagia, semoga menjadi keluarga yang sakinah mawaddah warahmah."</div>
+                <div class="s9-ma">Keluarga Santoso · 12 Agustus 2026</div>
+              </div>
+            </div>
+            <div class="s9-add">Add Your Memory<span>No login required · via link or QR code</span></div>
+            <div class="home-bar" style="background:#F7F2EA"><div class="hi-lt"></div></div>
+          </div>
+          <!-- ══ S10: SHARE & PRIVACY ════════════════ -->
+          <div class="sc" id="s10" style="background:#F7F2EA">
+            <div class="sb sb-lt"><span class="st">9:41</span></div>
+            <div class="back-nav"><button class="back-btn" onclick="goto(-1)"><svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M6 1L1 6l5 5" stroke="#6B5E52" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Back</button><span class="nav-ttl">Share</span><span></span></div>
+            <div class="s10-body">
+              <div class="s10-h1">Share Your<br>Album</div>
+              <div class="s10-sub">Choose who can view your memories.</div>
+              <div class="s10-fl">Privacy</div>
+              <div class="priv-tog"><div class="pt pt-on">Private</div><div class="pt pt-off">Friends</div><div class="pt pt-off">Public</div></div>
+              <div class="s10-fl">Album Link</div>
+              <div class="link-block"><span class="link-url">optima.id/album/yulius-ananda-0826</span><span class="copy-btn">Copy</span></div>
+              <div class="s10-fl">QR Code</div>
+              <div class="qr-block">
+                <div class="qr-sq"></div>
+                <div><div class="qr-info-h">Print at reception</div><div class="qr-info-s">Guests scan to add photos &amp; messages — no login needed</div></div>
+              </div>
+              <div class="share-btns">
+                <div class="btn-wa">Share via WhatsApp</div>
+                <div class="btn-cp">Copy Link</div>
+              </div>
+              <div class="stats-row">
+                <div class="stat"><div class="stat-n">63</div><div class="stat-l">views this week</div></div>
+                <div class="stat"><div class="stat-n">138</div><div class="stat-l">guest memories</div></div>
+                <div class="stat"><div class="stat-n">86</div><div class="stat-l">album photos</div></div>
+              </div>
+            </div>
+            <div class="home-bar"><div class="hi-lt"></div></div>
+          </div>
+
+        </div><!-- /phone-screen -->
+      </div><!-- /phone-outer -->
+    </div>
+
+    <!-- DOT NAV -->
+    <div class="proto-nav">
+      <button class="nav-arr" onclick="step(-1)">‹</button>
+      <div class="dots" id="dotstrack"></div>
+      <button class="nav-arr" onclick="step(1)">›</button>
+    </div>
+  </div><!-- /phone-center -->
+
+  <!-- RIGHT PANEL -->
+  <aside class="panel panel-r">
+    <ul class="slist" id="slist">
+      <li class="on" onclick="goto(0)"><span class="sn">01</span>Landing Page</li>
+      <li onclick="goto(1)"><span class="sn">02</span>Create Album</li>
+      <li onclick="goto(2)"><span class="sn">03</span>Upload Photos</li>
+      <li onclick="goto(3)"><span class="sn">04</span>AI Processing</li>
+      <li onclick="goto(4)"><span class="sn">05</span>Photo Selection</li>
+      <li onclick="goto(5)"><span class="sn">06</span>Album Cover</li>
+      <li onclick="goto(6)"><span class="sn">07</span>Our Story</li>
+      <li onclick="goto(7)"><span class="sn">08</span>The Ceremony</li>
+      <li onclick="goto(8)"><span class="sn">09</span>Guest Memories</li>
+      <li onclick="goto(9)"><span class="sn">10</span>Share &amp; Privacy</li>
+    </ul>
+  </aside>
+
+</main>
+
+<!-- STYLE GUIDE -->
+<section class="sg" id="sg">
+  <div style="font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:300;color:#F7F2EA;margin-bottom:6px">Design System</div>
+  <div style="font-size:.72rem;color:rgba(247,242,234,.28);margin-bottom:40px">Digital Wedding Album · Optima Digital Selaras · v1.0</div>
+
+  <div class="sg-sec">
+    <div class="sg-sec-label">Color Palette</div>
+    <div class="swatches">
+      <div class="swatch"><div class="sw" style="background:#0E0E10"></div><div class="swn">Ink</div><div class="swh">#0E0E10</div></div>
+      <div class="swatch"><div class="sw" style="background:#1C1915"></div><div class="swn">Espresso</div><div class="swh">#1C1915</div></div>
+      <div class="swatch"><div class="sw" style="background:#6B5E52"></div><div class="swn">Stone</div><div class="swh">#6B5E52</div></div>
+      <div class="swatch"><div class="sw" style="background:#C9A96E"></div><div class="swn">Gold</div><div class="swh">#C9A96E</div></div>
+      <div class="swatch"><div class="sw" style="background:#E8DCD0"></div><div class="swn">Champagne</div><div class="swh">#E8DCD0</div></div>
+      <div class="swatch"><div class="sw" style="background:#F7F2EA;border-color:rgba(255,255,255,.15)"></div><div class="swn">Ivory</div><div class="swh">#F7F2EA</div></div>
+    </div>
+  </div>
+
+  <div class="sg-sec">
+    <div class="sg-sec-label">Typography</div>
+    <div class="typo-rows">
+      <div><div style="font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;color:#9C8C80;margin-bottom:3px">Display — Cormorant Garamond 300</div><div class="ty-d">Digital Wedding Album</div></div>
+      <div><div style="font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;color:#9C8C80;margin-bottom:3px">Editorial — Cormorant Garamond 300 Italic</div><div class="ty-i">It all started with a simple hello.</div></div>
+      <div><div style="font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;color:#9C8C80;margin-bottom:3px">Body — DM Sans 300/400</div><div class="ty-b">Your wedding happened once. Your memories can live forever. AI transforms your photos into a beautiful, cinematic story.</div></div>
+      <div><div style="font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;color:#9C8C80;margin-bottom:3px">Label — DM Sans 500 Uppercase</div><div class="ty-l">Album Style · Step 1 of 3 · AI Processing</div></div>
+    </div>
+  </div>
+
+  <div class="sg-sec">
+    <div class="sg-sec-label">Components</div>
+    <div class="comp-row">
+      <button class="c-btn c-gold">Create My Album</button>
+      <button class="c-btn c-dark">Continue →</button>
+      <button class="c-btn c-ghost">See Example</button>
+      <button class="c-pill c-pa">Ceremony (24)</button>
+      <button class="c-pill c-pi">Family (15)</button>
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="ft-brand">Optima Digital Selaras</div>
+  <div class="ft-copy">Digital Wedding Album · High-Fidelity Prototype</div>
+</footer>
+
+<script>
+const screens=[
+  {id:'s1',name:'Landing Page',    desc:'Marketing homepage — Album is the hero, Invitation is secondary.'},
+  {id:'s2',name:'Create Album',    desc:'Step 1 of 3 — couple details, date, location, album style.'},
+  {id:'s3',name:'Upload Photos',   desc:'Bulk upload with real-time progress bar and thumbnail preview.'},
+  {id:'s4',name:'AI Processing',   desc:'Cinematic processing state — AI analyzes and organizes your photos.'},
+  {id:'s5',name:'Photo Selection', desc:'Review 86 AI-selected photos by category; add or exclude.'},
+  {id:'s6',name:'Album Cover',     desc:'Full-bleed opening — names, date, location, scroll hint.'},
+  {id:'s7',name:'Our Story',       desc:'Chapter One — editorial opener with Cormorant serif and photography.'},
+  {id:'s8',name:'The Ceremony',    desc:'Chapter Two — multi-photo layout with date, caption, navigation.'},
+  {id:'s9',name:'Guest Memories',  desc:'138 memories from 89 guests — photos and messages, no login.'},
+  {id:'s10',name:'Share & Privacy',desc:'Privacy toggle, album link, QR code, WhatsApp sharing.'}
+];
+let cur=0;
+const pname=document.getElementById('pname');
+const pdesc=document.getElementById('pdesc');
+const dt=document.getElementById('dotstrack');
+const sl=document.getElementById('slist');
+
+// build dots
+screens.forEach((_,i)=>{
+  const d=document.createElement('div');
+  d.className='dot'+(i===0?' on':'');
+  d.onclick=()=>goto(i);
+  dt.appendChild(d);
+});
+
+function goto(idx){
+  if(idx<0)idx=0;
+  if(idx>=screens.length)idx=screens.length-1;
+  document.getElementById(screens[cur].id).classList.remove('on');
+  cur=idx;
+  const s=screens[cur];
+  document.getElementById(s.id).classList.add('on');
+  pname.textContent=s.name;
+  pdesc.textContent=s.desc;
+  dt.querySelectorAll('.dot').forEach((d,i)=>d.className='dot'+(i===cur?' on':''));
+  sl.querySelectorAll('li').forEach((li,i)=>li.className=i===cur?'on':'');
+}
+function step(d){goto(cur+d);}
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight')step(1);
+  if(e.key==='ArrowLeft')step(-1);
+});
+function toggleSG(){
+  const sg=document.getElementById('sg');
+  sg.classList.toggle('vis');
+  if(sg.classList.contains('vis'))sg.scrollIntoView({behavior:'smooth',block:'start'});
+}
+</script>
+</body>
+</html>

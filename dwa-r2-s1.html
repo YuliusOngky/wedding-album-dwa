@@ -1,0 +1,1185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>DWA — Creation Flow</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
+/* ── TOKENS ─────────────────────────────── */
+:root{
+  --ink:#0D0C0A;--espresso:#1C1917;--bark:#2C2420;
+  --stone:#6B5E52;--muted:#9C8C80;--muted2:#B8A898;
+  --champagne:#E8DCD0;--ivory:#F7F2EA;--cream:#F0E8DC;
+  --gold:#C9A96E;--gold-lt:#DFC090;--gold-dk:#A08848;
+  --white:#FBF8F4;--success:#7A9E7E;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--ink)}
+
+/* ── OUTER SHELL ─────────────────────────── */
+.shell{
+  display:grid;
+  grid-template-columns:210px 1fr 270px;
+  height:100vh;width:100vw;
+  font-family:'DM Sans',sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ── LEFT PANEL ─────────────────────────── */
+.pl{
+  background:var(--espresso);
+  border-right:1px solid rgba(201,169,110,0.1);
+  padding:28px 0;
+  display:flex;flex-direction:column;
+  overflow:hidden;
+}
+.pl-logo{
+  padding:0 22px 24px;
+  font-family:'Cormorant Garamond',serif;
+  font-size:17px;font-weight:400;
+  letter-spacing:0.08em;color:var(--gold);
+}
+.pl-logo span{font-weight:300;font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);display:block;margin-top:2px}
+.pl-section{
+  font-size:8px;letter-spacing:0.18em;text-transform:uppercase;
+  color:var(--stone);padding:0 22px 10px;
+}
+.pl-item{
+  display:flex;align-items:center;gap:10px;
+  padding:8px 22px;cursor:pointer;
+  font-size:11.5px;color:var(--muted);
+  border-left:2px solid transparent;
+  transition:all 0.15s;
+}
+.pl-item:hover{color:var(--champagne);background:rgba(201,169,110,0.05)}
+.pl-item.on{color:var(--gold);border-left-color:var(--gold);background:rgba(201,169,110,0.08)}
+.pl-dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0;opacity:0.6}
+.pl-item.on .pl-dot{opacity:1}
+.pl-divider{height:1px;background:rgba(201,169,110,0.1);margin:16px 22px}
+.pl-section-link{
+  padding:8px 22px;
+  font-size:10.5px;color:var(--stone);cursor:pointer;
+  letter-spacing:0.04em;
+}
+.pl-section-link:hover{color:var(--muted2)}
+.pl-section-link::before{content:'→ ';color:var(--gold-dk);opacity:0.6}
+
+/* ── CENTER ──────────────────────────────── */
+.pc{
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  gap:14px;background:var(--ink);
+  position:relative;
+}
+.pc-label{
+  font-size:10px;letter-spacing:0.16em;text-transform:uppercase;
+  color:var(--stone);text-align:center;
+}
+.pc-nav{
+  display:flex;align-items:center;gap:20px;
+}
+.pc-arrow{
+  width:36px;height:36px;border-radius:50%;
+  border:1px solid rgba(201,169,110,0.2);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;color:var(--muted);
+  transition:all 0.15s;background:rgba(255,255,255,0.03);
+}
+.pc-arrow:hover{border-color:var(--gold);color:var(--gold);background:rgba(201,169,110,0.08)}
+.pc-arrow.dis{opacity:0.25;pointer-events:none}
+.pc-dots{display:flex;gap:5px;align-items:center}
+.dot{width:5px;height:5px;border-radius:50%;background:var(--stone);opacity:0.4;cursor:pointer;transition:all 0.2s}
+.dot.on{background:var(--gold);opacity:1;width:14px;border-radius:3px}
+
+/* ── PHONE FRAME ─────────────────────────── */
+.phone-wrap{position:relative;width:340px}
+.phone-outer{
+  width:340px;border-radius:46px;padding:14px;
+  background:linear-gradient(145deg,#3C3028 0%,#1E1A16 50%,#0E0C0A 100%);
+  box-shadow:0 0 0 1px rgba(255,255,255,0.055),
+    0 40px 100px rgba(0,0,0,0.85),
+    inset 0 1px 0 rgba(255,255,255,0.08);
+  position:relative;
+}
+.phone-outer::before{
+  content:'';position:absolute;left:-3px;top:96px;
+  width:3px;height:30px;background:#2C241C;border-radius:2px 0 0 2px;
+  box-shadow:0 46px 0 #2C241C,0 80px 0 #2C241C;
+}
+.phone-outer::after{
+  content:'';position:absolute;right:-3px;top:128px;
+  width:3px;height:58px;background:#2C241C;border-radius:0 2px 2px 0;
+}
+.phone-screen{
+  width:312px;height:676px;border-radius:34px;
+  overflow:hidden;background:var(--ink);position:relative;
+}
+.dyn-island{
+  position:absolute;top:14px;left:50%;transform:translateX(-50%);
+  width:104px;height:30px;background:#080706;
+  border-radius:18px;z-index:100;pointer-events:none;
+}
+
+/* ── RIGHT PANEL ─────────────────────────── */
+.pr{
+  background:#F0EBE2;
+  border-left:1px solid rgba(0,0,0,0.07);
+  padding:32px 26px;
+  display:flex;flex-direction:column;
+  overflow:hidden;
+}
+.pr-tag{
+  font-size:8px;letter-spacing:0.2em;text-transform:uppercase;
+  color:var(--stone);margin-bottom:10px;
+}
+.pr-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:22px;font-weight:400;line-height:1.2;
+  color:var(--ink);margin-bottom:12px;
+}
+.pr-desc{
+  font-size:12.5px;line-height:1.65;color:var(--stone);
+  flex:1;
+}
+.pr-desc p{margin-bottom:10px}
+.pr-desc strong{color:var(--ink);font-weight:500}
+.pr-note{
+  margin-top:auto;padding:14px;
+  background:rgba(201,169,110,0.12);border-radius:6px;
+  border-left:2px solid var(--gold);
+}
+.pr-note-label{font-size:8.5px;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold-dk);margin-bottom:5px}
+.pr-note-text{font-size:11.5px;line-height:1.55;color:var(--bark)}
+.pr-sections{margin-top:24px}
+.pr-sec-title{font-size:8px;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.pr-sec-item{
+  font-size:11px;color:var(--stone);padding:5px 0;
+  border-bottom:1px solid rgba(0,0,0,0.07);
+  cursor:pointer;
+}
+.pr-sec-item:hover{color:var(--ink)}
+.pr-sec-item span{float:right;color:var(--gold-dk);font-size:10px}
+
+/* ══════════════════════════════════════════
+   SCREENS — all 312×676 fixed, no scroll
+   ══════════════════════════════════════════ */
+.sc{
+  width:312px;height:676px;
+  display:none;flex-direction:column;
+  position:absolute;top:0;left:0;
+  overflow:hidden;
+  font-family:'DM Sans',sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+.sc.on{display:flex}
+
+/* Status bar */
+.sb{
+  height:48px;display:flex;align-items:center;
+  justify-content:space-between;
+  padding:14px 20px 0;flex-shrink:0;position:relative;z-index:20;
+}
+.sb-t{font-size:13px;font-weight:500;letter-spacing:0.02em}
+.sb-ic{display:flex;gap:4px;align-items:center}
+.sb-ic svg{width:13px;height:13px;opacity:0.85}
+
+/* Home bar */
+.hb{
+  height:26px;display:flex;align-items:center;
+  justify-content:center;flex-shrink:0;
+}
+.hb-line{width:128px;height:4px;border-radius:2px;background:currentColor;opacity:0.22}
+
+/* ── S1: LANDING ─────────────────────────── */
+#s1{background:#080604;color:var(--white)}
+#s1 .sb,.pr-s1 .hb{color:rgba(240,232,220,0.7)}
+
+.s1-nav{
+  height:44px;display:flex;align-items:center;
+  justify-content:space-between;padding:0 20px;
+  flex-shrink:0;position:relative;z-index:20;
+  color:var(--champagne);
+}
+.s1-nav-logo{
+  font-family:'Cormorant Garamond',serif;
+  font-size:15px;font-weight:400;letter-spacing:0.1em;color:var(--gold);
+}
+.s1-nav-icon{opacity:0.7;cursor:pointer}
+
+/* Hero: fills remaining space */
+.s1-hero{flex:1;position:relative;overflow:hidden}
+
+/* Photo layer: cinematic couple scene */
+.s1-photo{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(circle 22px at 14% 16%,rgba(255,215,140,0.6) 0%,transparent 100%),
+    radial-gradient(circle 32px at 80% 9%,rgba(255,198,108,0.45) 0%,transparent 100%),
+    radial-gradient(circle 16px at 56% 22%,rgba(255,228,158,0.38) 0%,transparent 100%),
+    radial-gradient(circle 26px at 88% 35%,rgba(255,193,98,0.3) 0%,transparent 100%),
+    radial-gradient(circle 12px at 28% 11%,rgba(255,240,178,0.5) 0%,transparent 100%),
+    radial-gradient(circle 40px at 62% 28%,rgba(190,145,72,0.22) 0%,transparent 100%),
+    radial-gradient(circle 20px at 44% 6%,rgba(255,220,148,0.32) 0%,transparent 100%),
+    linear-gradient(162deg,#A87840 0%,#6A3A18 28%,#321808 55%,#160C06 78%,#080402 100%);
+}
+.s1-overlay{
+  position:absolute;inset:0;
+  background:linear-gradient(
+    to bottom,
+    rgba(8,6,4,0.2) 0%,
+    rgba(8,6,4,0.02) 22%,
+    rgba(8,6,4,0.0) 42%,
+    rgba(8,6,4,0.55) 68%,
+    rgba(8,6,4,0.96) 100%
+  );
+}
+
+/* SVG couple silhouette */
+.s1-svg{position:absolute;bottom:38%;left:50%;transform:translateX(-50%);width:190px;height:210px;opacity:0.92}
+
+/* Text content over photo */
+.s1-content{
+  position:absolute;bottom:0;left:0;right:0;
+  padding:0 22px 14px;
+}
+.s1-eyebrow{
+  font-size:8.5px;letter-spacing:0.22em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:9px;
+}
+.s1-h1{
+  font-family:'Cormorant Garamond',serif;
+  font-size:31px;font-weight:300;line-height:1.1;
+  color:var(--white);margin-bottom:10px;text-wrap:balance;
+}
+.s1-h1 em{font-style:italic;color:var(--gold-lt)}
+.s1-sub{
+  font-size:11.5px;line-height:1.6;
+  color:rgba(240,232,220,0.68);margin-bottom:16px;
+}
+.s1-btns{display:flex;flex-direction:column;gap:7px}
+.btn-pri{
+  height:44px;display:flex;align-items:center;justify-content:center;
+  background:var(--gold);border-radius:3px;border:none;
+  font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;
+  letter-spacing:0.14em;text-transform:uppercase;color:var(--ink);
+  cursor:pointer;transition:background 0.2s;
+}
+.btn-pri:hover{background:var(--gold-lt)}
+.btn-gh{
+  height:38px;display:flex;align-items:center;justify-content:center;
+  border:1px solid rgba(201,169,110,0.35);border-radius:3px;background:none;
+  font-family:'DM Sans',sans-serif;font-size:10.5px;color:rgba(201,169,110,0.8);
+  letter-spacing:0.08em;cursor:pointer;
+}
+
+/* Trust bar */
+.s1-trust{
+  padding:12px 20px;border-top:1px solid rgba(201,169,110,0.12);
+  display:flex;justify-content:space-around;flex-shrink:0;
+  background:rgba(255,255,255,0.025);
+}
+.ti{text-align:center}
+.ti-n{
+  font-family:'Cormorant Garamond',serif;font-size:19px;
+  font-weight:400;color:var(--gold);line-height:1;
+}
+.ti-l{font-size:8.5px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-top:3px}
+
+/* ── S2: ALBUM SETUP ─────────────────────── */
+#s2{background:var(--ivory);color:var(--ink)}
+#s2 .sb{color:var(--ink)}
+#s2 .hb-line{background:var(--ink)}
+
+.setup-nav{
+  height:48px;display:flex;align-items:center;
+  padding:0 20px;flex-shrink:0;gap:12px;
+  border-bottom:1px solid rgba(0,0,0,0.06);
+}
+.back-btn{
+  width:32px;height:32px;border-radius:50%;
+  border:1px solid rgba(0,0,0,0.12);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;background:none;color:var(--stone);
+}
+.prog-wrap{flex:1;display:flex;align-items:center;gap:6px;padding:0 4px}
+.prog-step{
+  flex:1;height:3px;border-radius:2px;background:rgba(0,0,0,0.1);
+  overflow:hidden;
+}
+.prog-step.done{background:var(--gold)}
+.prog-step.cur{background:linear-gradient(90deg,var(--gold) 60%,rgba(0,0,0,0.1) 60%)}
+.prog-txt{font-size:10px;color:var(--muted);white-space:nowrap}
+
+.setup-head{
+  padding:20px 22px 14px;flex-shrink:0;
+}
+.setup-eyebrow{font-size:8.5px;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold-dk);margin-bottom:7px}
+.setup-title{
+  font-family:'Cormorant Garamond',serif;font-size:24px;
+  font-weight:300;color:var(--ink);line-height:1.15;
+}
+.setup-title em{font-style:italic}
+
+.setup-form{flex:1;padding:0 22px;overflow:hidden;display:flex;flex-direction:column;gap:0}
+.field{
+  padding:12px 0;border-bottom:1px solid rgba(0,0,0,0.07);
+  display:flex;flex-direction:column;gap:4px;
+}
+.field:last-child{border-bottom:none}
+.field-label{font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--stone)}
+.field-val{
+  font-family:'Cormorant Garamond',serif;font-size:18px;
+  font-weight:300;color:var(--ink);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.field-val.empty{color:var(--muted2);font-size:15px}
+.field-val svg{width:14px;height:14px;color:var(--muted);flex-shrink:0}
+.field-hint{font-size:10.5px;color:var(--muted2)}
+
+.field-style-row{display:flex;gap:6px;margin-top:4px}
+.style-chip{
+  padding:5px 10px;border-radius:20px;font-size:10px;
+  border:1px solid rgba(0,0,0,0.12);color:var(--stone);cursor:pointer;
+  background:rgba(255,255,255,0.6);
+}
+.style-chip.on{background:var(--gold);border-color:var(--gold);color:var(--ink);font-weight:500}
+
+.setup-foot{
+  padding:14px 22px;flex-shrink:0;
+  border-top:1px solid rgba(0,0,0,0.06);
+}
+.setup-ai-note{
+  font-size:10px;color:var(--muted);text-align:center;
+  margin-bottom:10px;line-height:1.5;
+}
+.setup-ai-note svg{vertical-align:-2px;margin-right:3px}
+
+/* ── S3: CULTURE SELECTION ───────────────── */
+#s3{background:var(--ivory);color:var(--ink)}
+#s3 .sb{color:var(--ink)}
+#s3 .hb-line{background:var(--ink)}
+
+.culture-head{
+  padding:16px 22px 10px;flex-shrink:0;
+}
+.culture-title{
+  font-family:'Cormorant Garamond',serif;font-size:22px;
+  font-weight:300;line-height:1.2;color:var(--ink);margin-bottom:6px;
+}
+.culture-sub{font-size:11px;line-height:1.55;color:var(--stone)}
+
+.culture-grid{
+  flex:1;padding:4px 18px 0;
+  display:grid;grid-template-columns:1fr 1fr 1fr;
+  grid-template-rows:repeat(3,1fr);
+  gap:8px;overflow:hidden;
+}
+.culture-card{
+  border-radius:8px;border:1.5px solid rgba(0,0,0,0.08);
+  background:rgba(255,255,255,0.6);
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  gap:5px;cursor:pointer;padding:6px 4px;
+  transition:all 0.18s;position:relative;overflow:hidden;
+}
+.culture-card:hover{border-color:rgba(201,169,110,0.4);background:rgba(255,255,255,0.9)}
+.culture-card.sel{
+  border-color:var(--gold);background:rgba(201,169,110,0.1);
+}
+.culture-motif{
+  width:36px;height:36px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;
+}
+.culture-name{
+  font-size:9.5px;font-weight:500;color:var(--ink);
+  text-align:center;letter-spacing:0.02em;line-height:1.2;
+}
+.culture-card.sel .culture-name{color:var(--gold-dk)}
+.culture-check{
+  position:absolute;top:6px;right:6px;
+  width:14px;height:14px;border-radius:50%;
+  background:var(--gold);display:none;
+  align-items:center;justify-content:center;
+}
+.culture-check svg{width:8px;height:8px;color:var(--ink)}
+.culture-card.sel .culture-check{display:flex}
+
+.culture-foot{
+  padding:12px 22px 8px;flex-shrink:0;
+  border-top:1px solid rgba(0,0,0,0.06);
+}
+.culture-ai-note{
+  font-size:10px;color:var(--muted);
+  text-align:center;line-height:1.5;margin-bottom:10px;
+}
+
+/* ── S4: UPLOAD ──────────────────────────── */
+#s4{background:var(--ivory);color:var(--ink)}
+#s4 .sb{color:var(--ink)}
+#s4 .hb-line{background:var(--ink)}
+
+.upload-head{
+  padding:16px 22px 10px;flex-shrink:0;
+}
+.upload-eyebrow{font-size:8.5px;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold-dk);margin-bottom:6px}
+.upload-title{
+  font-family:'Cormorant Garamond',serif;font-size:26px;
+  font-weight:300;line-height:1.1;color:var(--ink);margin-bottom:5px;
+}
+.upload-sub{font-size:11px;line-height:1.55;color:var(--stone)}
+
+.upload-zone{
+  margin:0 22px;border-radius:10px;
+  border:1.5px dashed rgba(201,169,110,0.45);
+  background:rgba(201,169,110,0.04);
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  gap:8px;flex:1;cursor:pointer;
+  transition:background 0.2s;
+  position:relative;overflow:hidden;
+  min-height:0;
+}
+.upload-zone:hover{background:rgba(201,169,110,0.08)}
+.upload-icon{color:var(--gold);opacity:0.8}
+.upload-zone-title{font-size:14px;color:var(--ink);font-weight:400}
+.upload-zone-sub{font-size:10.5px;color:var(--muted)}
+.upload-types{display:flex;gap:5px;flex-wrap:wrap;justify-content:center}
+.type-badge{
+  padding:3px 8px;border-radius:3px;
+  background:rgba(0,0,0,0.06);
+  font-size:9px;letter-spacing:0.08em;color:var(--stone);
+}
+
+/* After files added */
+.upload-stats{
+  padding:10px 22px 0;flex-shrink:0;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.upload-stat-txt{font-size:12px;color:var(--stone)}
+.upload-stat-txt strong{color:var(--ink)}
+.add-more{font-size:11px;color:var(--gold-dk);cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+
+.upload-preview{
+  padding:6px 22px 0;display:flex;gap:4px;flex-shrink:0;
+}
+.up-thumb{
+  width:56px;height:56px;border-radius:5px;overflow:hidden;flex-shrink:0;
+}
+.up-thumb-img{
+  width:100%;height:100%;
+  background:var(--photo);
+}
+.up-more{
+  width:56px;height:56px;border-radius:5px;
+  background:rgba(0,0,0,0.06);
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;color:var(--muted);font-weight:500;flex-shrink:0;
+}
+
+.upload-foot{
+  padding:10px 22px 8px;flex-shrink:0;
+  border-top:1px solid rgba(0,0,0,0.06);
+}
+.upload-ai-note{
+  font-size:10px;color:var(--muted);
+  text-align:center;line-height:1.5;margin-bottom:10px;
+}
+
+/* ── S5: AI PROCESSING ───────────────────── */
+#s5{background:#070604;color:var(--white)}
+#s5 .sb{color:rgba(240,232,220,0.55)}
+#s5 .hb-line{background:var(--white)}
+
+.ai-body{
+  flex:1;display:flex;flex-direction:column;
+  align-items:center;justify-content:flex-start;
+  padding:10px 24px 0;
+}
+.ai-label{
+  font-size:9px;letter-spacing:0.22em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:4px;
+}
+.ai-title{
+  font-family:'Cormorant Garamond',serif;font-size:24px;
+  font-weight:300;color:var(--white);text-align:center;
+  line-height:1.2;margin-bottom:20px;
+}
+
+/* Orbital ring animation */
+.orb-wrap{position:relative;width:150px;height:150px;flex-shrink:0;margin-bottom:22px}
+.orb-center{
+  position:absolute;inset:50%;transform:translate(-50%,-50%);
+  width:40px;height:40px;border-radius:50%;
+  background:radial-gradient(circle,rgba(201,169,110,0.25),rgba(201,169,110,0.04));
+  display:flex;align-items:center;justify-content:center;
+}
+.orb-center-dot{width:10px;height:10px;border-radius:50%;background:var(--gold);opacity:0.9}
+.ring{
+  position:absolute;border-radius:50%;
+  animation:spin linear infinite;
+}
+.r1{
+  inset:0;
+  border:1px solid rgba(201,169,110,0.18);
+  border-top:1.5px solid rgba(201,169,110,0.6);
+  animation-duration:3s;
+}
+.r2{
+  inset:16px;
+  border:1px solid transparent;
+  border-top:1.5px solid var(--gold);
+  border-right:1px solid rgba(201,169,110,0.3);
+  animation-duration:2.1s;
+  animation-direction:reverse;
+}
+.r3{
+  inset:32px;
+  border-top:1px solid rgba(201,169,110,0.4);
+  border-right:1px solid transparent;
+  border-bottom:1px solid rgba(201,169,110,0.15);
+  border-left:1px solid transparent;
+  animation-duration:3.8s;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Checklist */
+.ai-checks{
+  width:100%;display:flex;flex-direction:column;gap:0;
+  background:rgba(255,255,255,0.03);border-radius:8px;
+  overflow:hidden;border:1px solid rgba(255,255,255,0.05);
+  margin-bottom:16px;
+}
+.ai-check{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 14px;border-bottom:1px solid rgba(255,255,255,0.04);
+  font-size:11.5px;
+}
+.ai-check:last-child{border-bottom:none}
+.ck-ic{width:18px;height:18px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.ck-done .ck-ic{color:var(--success)}
+.ck-active .ck-ic{color:var(--gold);animation:ck-pulse 1.2s ease-in-out infinite}
+.ck-queue .ck-ic{color:rgba(255,255,255,0.2)}
+@keyframes ck-pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+.ck-done{color:rgba(255,255,255,0.5)}
+.ck-active{color:var(--white)}
+.ck-queue{color:rgba(255,255,255,0.25)}
+.ck-badge{
+  margin-left:auto;font-size:9px;letter-spacing:0.06em;
+  padding:2px 7px;border-radius:10px;
+}
+.ck-done .ck-badge{background:rgba(122,158,126,0.2);color:var(--success)}
+.ck-active .ck-badge{background:rgba(201,169,110,0.2);color:var(--gold)}
+.ck-queue .ck-badge{background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.2)}
+
+/* Progress bar */
+.ai-progress{width:100%;margin-bottom:12px}
+.ai-prog-row{display:flex;justify-content:space-between;margin-bottom:6px;font-size:10px}
+.ai-prog-label{color:var(--muted)}
+.ai-prog-pct{color:var(--gold)}
+.ai-prog-bar{height:3px;background:rgba(255,255,255,0.1);border-radius:2px;overflow:hidden}
+.ai-prog-fill{height:100%;background:linear-gradient(90deg,var(--gold-dk),var(--gold));border-radius:2px;width:58%;transition:width 0.5s ease}
+.ai-eta{text-align:center;font-size:10.5px;color:var(--muted);margin-bottom:6px}
+
+/* ── S6: ALBUM READY ─────────────────────── */
+#s6{background:var(--white);color:var(--ink)}
+#s6 .sb{color:var(--ink)}
+#s6 .hb-line{background:var(--ink)}
+
+.ready-top{
+  flex:0 0 auto;
+  padding:12px 22px 0;
+  display:flex;flex-direction:column;
+  align-items:center;
+}
+.ready-celebration{
+  width:64px;height:64px;margin-bottom:8px;
+  display:flex;align-items:center;justify-content:center;
+  position:relative;
+}
+.ready-ring{
+  width:64px;height:64px;border-radius:50%;
+  border:1.5px solid rgba(201,169,110,0.3);
+  position:absolute;
+  animation:ready-expand 2.5s ease-out infinite;
+}
+.ready-ring:nth-child(2){animation-delay:0.8s}
+.ready-ring:nth-child(3){animation-delay:1.6s}
+@keyframes ready-expand{
+  0%{transform:scale(0.5);opacity:0.8}
+  100%{transform:scale(2.2);opacity:0}
+}
+.ready-icon{
+  width:40px;height:40px;border-radius:50%;
+  background:var(--gold);display:flex;align-items:center;justify-content:center;
+  position:relative;z-index:1;box-shadow:0 4px 16px rgba(201,169,110,0.4);
+}
+.ready-eyebrow{font-size:8.5px;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold-dk);margin-bottom:5px}
+.ready-h1{
+  font-family:'Cormorant Garamond',serif;font-size:26px;
+  font-weight:300;text-align:center;color:var(--ink);
+  line-height:1.15;margin-bottom:4px;
+}
+.ready-h1 em{font-style:italic;color:var(--gold-dk)}
+.ready-divider{
+  width:40px;height:1px;background:var(--gold);
+  margin:10px auto 14px;opacity:0.6;
+}
+
+/* Stats card */
+.ready-stats{
+  margin:0 22px;background:rgba(0,0,0,0.03);
+  border-radius:8px;border:1px solid rgba(0,0,0,0.07);
+  overflow:hidden;flex-shrink:0;
+}
+.stat-row{
+  display:flex;align-items:center;
+  padding:10px 16px;border-bottom:1px solid rgba(0,0,0,0.05);
+  gap:12px;
+}
+.stat-row:last-child{border-bottom:none}
+.stat-icon{
+  width:28px;height:28px;border-radius:6px;
+  background:rgba(201,169,110,0.12);
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.stat-icon svg{width:14px;height:14px;color:var(--gold-dk)}.stat-num{
+  font-family:'Cormorant Garamond',serif;font-size:20px;
+  font-weight:400;color:var(--ink);min-width:36px;
+}
+.stat-desc{font-size:11px;color:var(--stone)}
+.stat-ai{
+  margin-left:auto;font-size:8px;letter-spacing:0.08em;
+  padding:2px 6px;border-radius:10px;
+  background:rgba(201,169,110,0.15);color:var(--gold-dk);
+  white-space:nowrap;
+}
+
+/* CTAs */
+.ready-ctas{
+  padding:14px 22px 0;display:flex;flex-direction:column;gap:7px;flex-shrink:0;
+}
+.btn-ready-main{
+  height:48px;display:flex;align-items:center;justify-content:center;
+  background:var(--ink);border:none;border-radius:4px;
+  font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;
+  letter-spacing:0.14em;text-transform:uppercase;
+  color:var(--gold);cursor:pointer;gap:8px;
+}
+.btn-ready-edit{
+  height:42px;display:flex;align-items:center;justify-content:center;
+  border:1px solid rgba(0,0,0,0.15);border-radius:4px;background:none;
+  font-family:'DM Sans',sans-serif;font-size:11px;color:var(--stone);
+  letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;
+}
+.ready-link{
+  text-align:center;font-size:10.5px;color:var(--muted);
+  text-decoration:underline;text-underline-offset:2px;cursor:pointer;
+  padding-top:2px;
+}
+
+/* ── NAVIGATION ARROWS ───────────────────── */
+.nav-arrows{
+  display:flex;align-items:center;gap:16px;
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- ── LEFT PANEL ─────────────────────────── -->
+<aside class="pl">
+  <div class="pl-logo">Optima<span>Digital Wedding Album</span></div>
+  <div class="pl-section">Creation Flow</div>
+  <div class="pl-item on" onclick="goto(0)"><span class="pl-dot"></span>Landing Page</div>
+  <div class="pl-item" onclick="goto(1)"><span class="pl-dot"></span>Album Setup</div>
+  <div class="pl-item" onclick="goto(2)"><span class="pl-dot"></span>Culture Selection</div>
+  <div class="pl-item" onclick="goto(3)"><span class="pl-dot"></span>Upload Everything</div>
+  <div class="pl-item" onclick="goto(4)"><span class="pl-dot"></span>AI Processing</div>
+  <div class="pl-item" onclick="goto(5)"><span class="pl-dot"></span>Album Ready</div>
+  <div class="pl-divider"></div>
+  <div class="pl-section">Other Sections</div>
+  <div class="pl-section-link">Desktop Album Editor</div>
+  <div class="pl-section-link">Mobile Album Viewer</div>
+  <div class="pl-section-link">Guest Experience</div>
+</aside>
+
+<!-- ── CENTER ──────────────────────────────── -->
+<main class="pc">
+  <div class="pc-label" id="screen-label">01 / 06 — Landing Page</div>
+  <div class="phone-wrap">
+    <div class="phone-outer">
+      <div class="phone-screen">
+        <div class="dyn-island"></div>
+
+        <!-- ══ S1: LANDING ══════════════════════ -->
+        <div class="sc on" id="s1">
+          <!-- Status bar -->
+          <div class="sb">
+            <div class="sb-t" style="color:rgba(240,232,220,0.7)">9:41</div>
+            <div class="sb-ic" style="color:rgba(240,232,220,0.7)">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M1 1l22 22M16.72 11.06A10.94 10.94 0 0 1 19 12.55M5 12.55a10.94 10.94 0 0 1 5.17-2.39M10.71 5.05A16 16 0 0 1 22.56 9M1.42 9a15.91 15.91 0 0 1 4.7-2.88M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+              <svg viewBox="0 0 24 24" fill="currentColor"><rect x="2" y="7" width="20" height="15" rx="2" fill="currentColor" opacity="0.25"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" stroke="currentColor" stroke-width="1.5" fill="none"/><rect x="4" y="9" width="10" height="11" rx="1" fill="currentColor"/></svg>
+            </div>
+          </div>
+          <!-- Nav -->
+          <div class="s1-nav">
+            <div class="s1-nav-logo">Optima</div>
+            <div class="s1-nav-icon">
+              <svg width="20" height="14" viewBox="0 0 20 14" fill="none">
+                <line x1="0" y1="1" x2="20" y2="1" stroke="currentColor" stroke-width="1.5"/>
+                <line x1="4" y1="7" x2="20" y2="7" stroke="currentColor" stroke-width="1.5"/>
+                <line x1="8" y1="13" x2="20" y2="13" stroke="currentColor" stroke-width="1.5"/>
+              </svg>
+            </div>
+          </div>
+          <!-- Hero -->
+          <div class="s1-hero">
+            <div class="s1-photo"></div>
+            <div class="s1-overlay"></div>
+            <!-- Couple SVG silhouette -->
+            <svg class="s1-svg" viewBox="0 0 190 210" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- Ambient bokeh -->
+              <circle cx="30" cy="30" r="18" fill="rgba(255,210,130,0.18)"/>
+              <circle cx="155" cy="20" r="12" fill="rgba(255,195,110,0.14)"/>
+              <circle cx="170" cy="60" r="8" fill="rgba(255,218,148,0.16)"/>
+              <circle cx="20" cy="80" r="10" fill="rgba(255,200,120,0.1)"/>
+              <circle cx="140" cy="100" r="15" fill="rgba(200,160,80,0.1)"/>
+              <!-- BRIDE (left) -->
+              <ellipse cx="75" cy="170" rx="28" ry="42" fill="rgba(235,225,210,0.88)"/>
+              <path d="M 60,130 Q 62,118 68,112 Q 74,108 80,108 Q 86,108 90,114 Q 95,122 94,132 Q 90,138 85,140 Q 78,142 72,140 Q 65,137 60,130 Z" fill="rgba(228,218,200,0.92)"/>
+              <path d="M 68,105 Q 80,98 92,105 Q 98,115 96,130 Q 85,122 80,120 Q 74,118 68,125 Q 64,115 68,105 Z" fill="rgba(245,240,232,0.6)"/>
+              <ellipse cx="80" cy="100" rx="14" ry="16" fill="rgba(175,138,108,0.95)"/>
+              <path d="M 66,97 Q 66,86 80,85 Q 94,85 94,96 Q 88,91 80,91 Q 72,91 66,97 Z" fill="rgba(45,28,15,0.85)"/>
+              <circle cx="92" cy="150" r="9" fill="rgba(180,100,100,0.4)"/>
+              <circle cx="88" cy="145" r="7" fill="rgba(195,115,115,0.35)"/>
+              <circle cx="96" cy="147" r="6" fill="rgba(165,90,90,0.35)"/>
+              <!-- GROOM (right) -->
+              <rect x="108" y="148" width="16" height="50" rx="4" fill="rgba(22,16,12,0.9)"/>
+              <rect x="126" y="148" width="16" height="50" rx="4" fill="rgba(22,16,12,0.9)"/>
+              <path d="M 105,120 Q 107,110 116,108 Q 120,107 124,108 Q 133,110 135,120 Q 137,132 135,148 L 105,148 Q 103,134 105,120 Z" fill="rgba(18,13,9,0.92)"/>
+              <path d="M 116,108 L 120,108 L 121,130 L 119,108 Z" fill="rgba(240,232,220,0.7)"/>
+              <path d="M 118,115 L 122,115 L 121,132 L 119,132 Z" fill="rgba(180,140,80,0.7)"/>
+              <ellipse cx="120" cy="100" rx="13" ry="15" fill="rgba(165,128,98,0.95)"/>
+              <path d="M 107,96 Q 107,86 120,85 Q 133,85 133,96 Q 127,90 120,90 Q 113,90 107,96 Z" fill="rgba(35,22,12,0.9)"/>
+            </svg>
+            <!-- Content -->
+            <div class="s1-content">
+              <div class="s1-eyebrow">AI-Powered Digital Album</div>
+              <h1 class="s1-h1">Your wedding,<br><em>beautifully</em><br>preserved.</h1>
+              <p class="s1-sub">Upload your memories. AI creates a cinematic story. Share it with everyone you love.</p>
+              <div class="s1-btns">
+                <button class="btn-pri" onclick="goto(1)">Create My Album</button>
+                <button class="btn-gh">See an Example →</button>
+              </div>
+            </div>
+          </div>
+          <!-- Trust bar -->
+          <div class="s1-trust">
+            <div class="ti"><div class="ti-n">AI</div><div class="ti-l">Photo Selection</div></div>
+            <div class="ti"><div class="ti-n">8+</div><div class="ti-l">Story Chapters</div></div>
+            <div class="ti"><div class="ti-n">1</div><div class="ti-l">Wedding Film</div></div>
+          </div>
+          <div class="hb" style="color:var(--white)"><div class="hb-line"></div></div>
+        </div>
+
+        <!-- ══ S2: ALBUM SETUP ════════════════ -->
+        <div class="sc" id="s2">
+          <div class="sb"><div class="sb-t">9:41</div><div class="sb-ic">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" opacity="0.5"><path d="M1.42 9a16 16 0 0 1 21.16 0M5 12.55a11 11 0 0 1 14.08 0M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01"/></svg>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" opacity="0.7"><rect x="2" y="7" width="18" height="12" rx="2"/><path d="M22 11v2" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+          </div></div>
+          <div class="setup-nav">
+            <button class="back-btn" onclick="goto(0)">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+            </button>
+            <div class="prog-wrap">
+              <div class="prog-step done"></div>
+              <div class="prog-step cur"></div>
+              <div class="prog-step"></div>
+            </div>
+            <span class="prog-txt">Step 1 of 3</span>
+          </div>
+          <div class="setup-head">
+            <div class="setup-eyebrow">Album Setup</div>
+            <div class="setup-title">Let's begin<br><em>your story.</em></div>
+          </div>
+          <div class="setup-form">
+            <div class="field">
+              <div class="field-label">Bride / Partner 1</div>
+              <div class="field-val">Ananda Putri
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              </div>
+            </div>
+            <div class="field">
+              <div class="field-label">Groom / Partner 2</div>
+              <div class="field-val">Yulius Pratama
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              </div>
+            </div>
+            <div class="field">
+              <div class="field-label">Wedding Date</div>
+              <div class="field-val">12 August 2026
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              </div>
+            </div>
+            <div class="field">
+              <div class="field-label">Location / Venue</div>
+              <div class="field-val">Ubud · Bali
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              </div>
+            </div>
+            <div class="field">
+              <div class="field-label">Visual Style</div>
+              <div class="field-style-row">
+                <div class="style-chip">Cinematic</div>
+                <div class="style-chip on">Editorial</div>
+                <div class="style-chip">Romantic</div>
+                <div class="style-chip">Minimal</div>
+              </div>
+            </div>
+          </div>
+          <div class="setup-foot">
+            <div class="setup-ai-note">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              AI will personalize your album based on these details
+            </div>
+            <button class="btn-pri" onclick="goto(2)">Continue →</button>
+          </div>
+          <div class="hb"><div class="hb-line"></div></div>
+        </div>
+
+        <!-- ══ S3: CULTURE SELECTION ══════════ -->
+        <div class="sc" id="s3">
+          <div class="sb"><div class="sb-t">9:41</div><div class="sb-ic">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" opacity="0.5"><path d="M1.42 9a16 16 0 0 1 21.16 0M5 12.55a11 11 0 0 1 14.08 0M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01"/></svg>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" opacity="0.7"><rect x="2" y="7" width="18" height="12" rx="2"/></svg>
+          </div></div>
+          <div class="setup-nav">
+            <button class="back-btn" onclick="goto(1)">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+            </button>
+            <div class="prog-wrap">
+              <div class="prog-step done"></div>
+              <div class="prog-step done"></div>
+              <div class="prog-step cur"></div>
+            </div>
+            <span class="prog-txt">Step 2 of 3</span>
+          </div>
+          <div class="culture-head">
+            <div class="setup-eyebrow">Your Wedding Culture</div>
+            <div class="culture-title">Tell us about<br>your celebration.</div>
+            <div class="culture-sub">AI will shape your album's story, chapters, and narrative around your wedding traditions.</div>
+          </div>
+          <div class="culture-grid" id="culture-grid">
+            <div class="culture-card" onclick="selCulture(this)">
+              <div class="culture-motif">🌟</div>
+              <div class="culture-name">Modern</div>
+              <div class="culture-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+            </div>
+            <div class="culture-card sel" onclick="selCulture(this)">
+              <div class="culture-motif" style="background:rgba(139,80,30,0.1)">
+                <svg width="28" height="28" viewBox="0 0 28 28"><rect x="4" y="4" width="6" height="6" rx="1" fill="rgba(139,80,30,0.6)"/><rect x="12" y="4" width="6" height="6" rx="1" fill="rgba(139,80,30,0.4)"/><rect x="20" y="4" width="6" height="6" rx="1" fill="rgba(139,80,30,0.6)"/><rect x="4" y="12" width="6" height="6" rx="1" fill="rgba(139,80,30,0.4)"/><rect x="12" y="12" width="6" height="6" rx="1" fill="rgba(201,169,110,0.8)"/><rect x="20" y="12" width="6" height="6" rx="1" fill="rgba(139,80,30,0.4)"/><rect x="4" y="20" width="6" height="6" rx="1" fill="rgba(139,80,30,0.6)"/><rect x="12" y="20" width="6" height="6" rx="1" fill="rgba(139,80,30,0.4)"/><rect x="20" y="20" width="6" height="6" rx="1" fill="rgba(139,80,30,0.6)"/></svg>
+              </div>
+              <div class="culture-name">Javanese</div>
+              <div class="culture-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+            </div>
+            <div class="culture-card" onclick="selCulture(this)">
+              <div class="culture-motif">👑</div>
+              <div class="culture-name">Sundanese</div>
+              <div class="culture-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+            </div>
+            <div class="culture-card" onclick="selCulture(this)">
+              <div class="culture-motif">🌺</div>
+              <div class="culture-name">Balinese</div>
+              <div class="culture-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+            </div>
+            <div class="culture-card" onclick="selCulture(this)">
+              <div class="culture-motif">🏔️</div>
+              <div class="culture-name">Batak</div>
+              <div class="culture-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+            </div>
+            <div class="culture-card" onclick="selCulture(this)">
+              <div class="culture-motif">🌿</div>
+              <div class="culture-name">Minang­kabau</div>
+              <div class="culture-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+            </div>
+            <div class="culture-card" onclick="selCulture(this)">
+              <div class="culture-motif">⚓</div>
+              <div class="culture-name">Bugis</div>
+              <div class="culture-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+            </div>
+            <div class="culture-card" onclick="selCulture(this)">
+              <div class="culture-motif">🏮</div>
+              <div class="culture-name">Chinese Indonesian</div>
+              <div class="culture-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+            </div>
+            <div class="culture-card" onclick="selCulture(this)">
+              <div class="culture-motif">✨</div>
+              <div class="culture-name">Mixed Culture</div>
+              <div class="culture-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+            </div>
+          </div>
+          <div class="culture-foot">
+            <div class="culture-ai-note">AI will organize chapters, terminology and storytelling around your selected tradition.</div>
+            <button class="btn-pri" onclick="goto(3)">Continue →</button>
+          </div>
+          <div class="hb"><div class="hb-line"></div></div>
+        </div>
+
+        <!-- ══ S4: UPLOAD ══════════════════════ -->
+        <div class="sc" id="s4">
+          <div class="sb"><div class="sb-t">9:41</div><div class="sb-ic">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" opacity="0.5"><path d="M1.42 9a16 16 0 0 1 21.16 0M5 12.55a11 11 0 0 1 14.08 0M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01"/></svg>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" opacity="0.7"><rect x="2" y="7" width="18" height="12" rx="2"/></svg>
+          </div></div>
+          <div class="setup-nav">
+            <button class="back-btn" onclick="goto(2)">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+            </button>
+            <div class="prog-wrap">
+              <div class="prog-step done"></div>
+              <div class="prog-step done"></div>
+              <div class="prog-step done"></div>
+            </div>
+            <span class="prog-txt">Step 3 of 3</span>
+          </div>
+          <div class="upload-head">
+            <div class="upload-eyebrow">Upload Your Memories</div>
+            <div class="upload-title">Upload<br>everything.</div>
+            <div class="upload-sub">Don't curate first — AI will find your best moments automatically.</div>
+          </div>
+          <div class="upload-zone" onclick="this.style.background='rgba(201,169,110,0.1)'">
+            <svg class="upload-icon" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+              <polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/>
+              <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/>
+            </svg>
+            <div class="upload-zone-title">Tap to add photos & videos</div>
+            <div class="upload-zone-sub">or drag and drop from your gallery</div>
+            <div class="upload-types">
+              <span class="type-badge">JPG</span><span class="type-badge">PNG</span>
+              <span class="type-badge">HEIC</span><span class="type-badge">MOV</span><span class="type-badge">MP4</span>
+            </div>
+          </div>
+          <div class="upload-stats">
+            <div class="upload-stat-txt"><strong>327 photos</strong> &amp; <strong>12 videos</strong> selected</div>
+            <div class="add-more">+ Add more</div>
+          </div>
+          <div class="upload-preview">
+            <div class="up-thumb"><div class="up-thumb-img" style="background:linear-gradient(145deg,#8A5828,#3A1808)"></div></div>
+            <div class="up-thumb"><div class="up-thumb-img" style="background:linear-gradient(155deg,#C49050,#7A4020)"></div></div>
+            <div class="up-thumb"><div class="up-thumb-img" style="background:linear-gradient(140deg,#5A3018,#1A0C06)"></div></div>
+            <div class="up-thumb"><div class="up-thumb-img" style="background:linear-gradient(160deg,#E8C070,#A87040)"></div></div>
+            <div class="up-more">+323</div>
+          </div>
+          <div class="upload-foot">
+            <div class="upload-ai-note">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:3px"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              AI will detect duplicates, blur, and select the best moments
+            </div>
+            <button class="btn-pri" onclick="goto(4)">Start AI Analysis →</button>
+          </div>
+          <div class="hb"><div class="hb-line"></div></div>
+        </div>
+
+        <!-- ══ S5: AI PROCESSING ═══════════════ -->
+        <div class="sc" id="s5">
+          <div class="sb">
+            <div class="sb-t" style="color:rgba(240,232,220,0.5)">9:41</div>
+            <div class="sb-ic" style="color:rgba(240,232,220,0.5)">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10" opacity="0.5"/></svg>
+            </div>
+          </div>
+          <div class="ai-body">
+            <div class="ai-label">Optima AI</div>
+            <div class="ai-title">Analyzing<br>your memories…</div>
+            <div class="orb-wrap">
+              <div class="ring r1"></div><div class="ring r2"></div><div class="ring r3"></div>
+              <div class="orb-center"><div class="orb-center-dot"></div></div>
+            </div>
+            <div class="ai-checks">
+              <div class="ai-check ck-done">
+                <div class="ck-ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div>
+                Duplicate detection<div class="ck-badge">Done</div>
+              </div>
+              <div class="ai-check ck-done">
+                <div class="ck-ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div>
+                Blur &amp; quality analysis<div class="ck-badge">Done</div>
+              </div>
+              <div class="ai-check ck-active">
+                <div class="ck-ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
+                Scene recognition<div class="ck-badge">In progress</div>
+              </div>
+              <div class="ai-check ck-queue">
+                <div class="ck-ic"><svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="5"/></svg></div>
+                Face &amp; couple recognition<div class="ck-badge">Queued</div>
+              </div>
+              <div class="ai-check ck-queue">
+                <div class="ck-ic"><svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="5"/></svg></div>
+                Moment categorization<div class="ck-badge">Queued</div>
+              </div>
+              <div class="ai-check ck-queue">
+                <div class="ck-ic"><svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="5"/></svg></div>
+                Story &amp; chapter creation<div class="ck-badge">Queued</div>
+              </div>
+              <div class="ai-check ck-queue">
+                <div class="ck-ic"><svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="5"/></svg></div>
+                Layout &amp; film generation<div class="ck-badge">Queued</div>
+              </div>
+            </div>
+            <div class="ai-progress">
+              <div class="ai-prog-row"><span class="ai-prog-label">Overall progress</span><span class="ai-prog-pct">34%</span></div>
+              <div class="ai-prog-bar"><div class="ai-prog-fill" style="width:34%"></div></div>
+            </div>
+            <div class="ai-eta">Estimated time remaining: ~2 min 40 sec</div>
+          </div>
+          <div class="hb" style="color:var(--white)"><div class="hb-line"></div></div>
+        </div>
+
+        <!-- ══ S6: ALBUM READY ════════════════ -->
+        <div class="sc" id="s6">
+          <div class="sb"><div class="sb-t">9:41</div><div class="sb-ic">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" opacity="0.5"><path d="M1.42 9a16 16 0 0 1 21.16 0M5 12.55a11 11 0 0 1 14.08 0M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01"/></svg>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" opacity="0.7"><rect x="2" y="7" width="18" height="12" rx="2"/></svg>
+          </div></div>
+          <div class="ready-top">
+            <div class="ready-celebration">
+              <div class="ready-ring"></div><div class="ready-ring"></div><div class="ready-ring"></div>
+              <div class="ready-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+            </div>
+            <div class="ready-eyebrow">Optima AI — Complete</div>
+            <div class="ready-h1">Your album<br>is <em>ready.</em></div>
+            <div class="ready-divider"></div>
+          </div>
+          <div class="ready-stats">
+            <div class="stat-row">
+              <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
+              <div class="stat-num">327</div><div class="stat-desc">photos analyzed</div><div class="stat-ai">AI analyzed</div>
+            </div>
+            <div class="stat-row">
+              <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div>
+              <div class="stat-num">86</div><div class="stat-desc">best moments selected</div><div class="stat-ai">AI curated</div>
+            </div>
+            <div class="stat-row">
+              <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
+              <div class="stat-num">8</div><div class="stat-desc">story chapters created</div><div class="stat-ai">AI composed</div>
+            </div>
+            <div class="stat-row">
+              <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg></div>
+              <div class="stat-num">1</div><div class="stat-desc">cinematic wedding film</div><div class="stat-ai">3:42 min</div>
+            </div>
+          </div>
+          <div class="ready-ctas">
+            <button class="btn-ready-main">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18"/></svg>
+              View Your Album
+            </button>
+            <button class="btn-ready-edit">Open Desktop Editor</button>
+            <div class="ready-link">Request Changes from AI</div>
+          </div>
+          <div class="hb"><div class="hb-line"></div></div>
+        </div>
+
+      </div><!-- /phone-screen -->
+    </div><!-- /phone-outer -->
+  </div><!-- /phone-wrap -->
+
+  <!-- Nav -->
+  <div class="nav-arrows">
+    <div class="pc-arrow dis" id="arr-prev" onclick="step(-1)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </div>
+    <div class="pc-dots" id="dots">
+      <div class="dot on" onclick="goto(0)"></div>
+      <div class="dot" onclick="goto(1)"></div>
+      <div class="dot" onclick="goto(2)"></div>
+      <div class="dot" onclick="goto(3)"></div>
+      <div class="dot" onclick="goto(4)"></div>
+      <div class="dot" onclick="goto(5)"></div>
+    </div>
+    <div class="pc-arrow" id="arr-next" onclick="step(1)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+    </div>
+  </div>
+  <div class="pc-label" id="screen-label2"></div>
+</main>
+
+<!-- ── RIGHT PANEL ─────────────────────────── -->
+<aside class="pr">
+  <div class="pr-tag">Revision 2 · Creation Flow</div>
+  <div class="pr-title" id="pr-title">Landing Page</div>
+  <div class="pr-desc" id="pr-desc">
+    <p>The homepage communicates the core promise upfront: <strong>AI creates your album.</strong> You upload, AI does the work.</p>
+    <p>The couple silhouette hero establishes an emotional, cinematic tone immediately — photography-dominant from the first screen.</p>
+    <p>Three trust indicators (AI selection, Story chapters, Wedding film) signal product depth without overwhelming.</p>
+  </div>
+  <div class="pr-note">
+    <div class="pr-note-label">Design Principle</div>
+    <div class="pr-note-text" id="pr-note">AI creates first. Human approves second. The album is the product — not the editor.</div>
+  </div>
+  <div class="pr-sections">
+    <div class="pr-sec-title">All Sections</div>
+    <div class="pr-sec-item">Section 1 — Creation Flow <span>● current</span></div>
+    <div class="pr-sec-item">Section 2 — Desktop Editor <span>→</span></div>
+    <div class="pr-sec-item">Section 3 — Mobile Viewer <span>→</span></div>
+    <div class="pr-sec-item">Section 4 — Guest Upload <span>→</span></div>
+  </div>
+</aside>
+
+</div><!-- /shell -->
+
+<script>
+const screens = [
+  {id:'s1',name:'Landing Page',num:'01',title:'Landing Page',
+    desc:'<p>The homepage communicates the core promise upfront: <strong>AI creates your album.</strong> You upload, AI does the work.</p><p>Couple silhouette hero establishes cinematic tone immediately. Trust indicators signal product depth without overwhelming.</p>',
+    note:'First impression is immersive, emotional photography — not a SaaS dashboard or form.'},
+  {id:'s2',name:'Album Setup',num:'02',title:'Album Setup',
+    desc:'<p>Minimal setup: couple names, date, location, visual style. <strong>Three steps total.</strong> Nothing about selecting photos yet.</p><p>Visual style chips give creative direction to AI — not manual template choice.</p>',
+    note:'Setup is light. The heavy lifting happens in AI Processing, not here.'},
+  {id:'s3',name:'Culture Selection',num:'03',title:'Indonesian Culture Selection',
+    desc:'<p><strong>New in Revision 2.</strong> AI uses the selected culture to determine chapter structure, terminology, and storytelling.</p><p>9 options cover major Indonesian wedding traditions. Selection influences the album narrative — not decorative icons.</p>',
+    note:"Javanese selection → AI uses Siraman, Ijab Kabul, Resepsi as chapter structure. Not clip-art."},
+  {id:'s4',name:'Upload Everything',num:'04',title:'Upload Everything',
+    desc:'<p><strong>Revised philosophy:</strong> "Upload everything" — no pre-curation required. AI handles duplicate detection, quality analysis, and best-photo selection.</p>',
+    note:"The user should not feel like they need to select photos. That is AI's job."},
+  {id:'s5',name:'AI Processing',num:'05',title:'AI Processing',
+    desc:'<p>The checklist shows the full scope of AI work: duplicate detection → quality analysis → scene recognition → face recognition → moment categorization → story creation → layout generation.</p>',
+    note:'7 distinct AI operations communicate the value of automation — this is not a simple crop tool.'},
+  {id:'s6',name:'Album Ready',num:'06',title:'Album Ready',
+    desc:'<p>Celebratory reveal. Stats make the AI work tangible: <strong>327 analyzed → 86 selected → 8 chapters → 1 film.</strong></p><p>Primary CTA is "View Your Album" — not "Edit."</p>',
+    note:'"Open Desktop Editor" is secondary. The album is already beautiful. Editing is a choice, not a requirement.'}
+];
+let cur = 0;
+function goto(idx){
+  if(idx < 0 || idx >= screens.length) return;
+  document.getElementById(screens[cur].id).classList.remove('on');
+  document.querySelectorAll('.pl-item').forEach((el,i)=>{ el.classList.toggle('on', i===idx); });
+  cur = idx;
+  const s = screens[cur];
+  document.getElementById(s.id).classList.add('on');
+  document.getElementById('screen-label').textContent = s.num + ' / 06 — ' + s.name;
+  document.getElementById('pr-title').textContent = s.title;
+  document.getElementById('pr-desc').innerHTML = s.desc;
+  document.getElementById('pr-note').textContent = s.note;
+  document.querySelectorAll('.dot').forEach((d,i)=>{ d.classList.toggle('on', i===idx); });
+  document.getElementById('arr-prev').classList.toggle('dis', cur===0);
+  document.getElementById('arr-next').classList.toggle('dis', cur===screens.length-1);
+}
+function step(d){ goto(cur+d); }
+document.addEventListener('keydown', e=>{
+  if(e.key==='ArrowRight') step(1);
+  if(e.key==='ArrowLeft') step(-1);
+});
+function selCulture(el){
+  document.querySelectorAll('.culture-card').forEach(c=>c.classList.remove('sel'));
+  el.classList.add('sel');
+}
+</script>
+</body>
+</html>
