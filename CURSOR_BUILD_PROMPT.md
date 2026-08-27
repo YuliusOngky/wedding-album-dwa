@@ -238,6 +238,17 @@ Input: semua media `ready` & tidak `hidden`. Output: draft chapter + page + slot
 - Petakan momen → chapter sesuai `culture`. Jawa: Siraman → Midodareni → Akad → Panggih → Resepsi
 - Kalau `taken_at` kosong di sebagian besar file, fallback ke urutan nama file
 
+**Foto tamu (`source='guest'`) memakai aturan berbeda — jangan disatukan:**
+
+| | Foto klien (fotografer) | Foto tamu |
+|---|---|---|
+| Ambang kualitas | `quality_score < 35` dibuang | `< 20` saja yang dibuang |
+| Dedup | Hamming ≤ 8, agresif | Hanya **dalam satu tamu**. Antar tamu jangan di-dedup. |
+| Kuota | Dikurasi ketat | Setiap tamu **dijamin minimal 1 foto tampil** |
+| Masuk chapter | Sesuai momen | Selalu ke chapter `kind='guest'` |
+
+Alasannya bukan teknis. Foto tamu diambil pakai HP di ruangan remang — kalau dipakai ambang yang sama dengan foto fotografer, hampir semua terbuang. Dan dua tamu yang memotret momen sama dari sudut berbeda itu **bukan duplikat**, itu dua orang yang sama-sama hadir. Tujuan chapter ini keterwakilan, bukan kurasi.
+
 ### `layout.js`
 Tabel keputusan berdasarkan jumlah + orientasi, **bukan** if-else bercabang:
 ```
@@ -322,6 +333,26 @@ Studio menyimpan `intake_url` + `intake_token` di `settings`. Tarikan bersifat *
 
 Setelah album diexport dan diserahkan, container intake untuk album itu **boleh dimatikan**. Tidak ada yang hilang — semua sudah ada di Studio.
 
+### Chapter "Guest Memories"
+
+Chapter `kind='guest'` adalah tujuan akhir foto tamu, dan tampilannya **beda dari chapter lain**. Ikuti halaman 9 `dwa-r2-s3.html`: mosaik 3 kolom + kartu pesan.
+
+Layout khusus, hanya untuk chapter ini:
+```
+'mosaic-masonry'   → mosaik rapat, tinggi bervariasi, 15-40 foto per halaman
+'message-cards'    → kutipan pesan tamu + nama & relasi
+'mosaic-mixed'     → mosaik diselingi 2-3 kartu pesan
+```
+
+Ketentuan:
+- Setiap foto membawa atribusi: **nama tamu + relasi** (contoh: "Budi Santoso · Keluarga Ananda"), tampil saat di-tap/hover
+- `guests.message` yang tidak kosong menjadi kartu pesan. Potong di 180 karakter dengan elipsis.
+- Urutkan **per tamu**, bukan per waktu — supaya kiriman satu orang berkelompok
+- Chapter ini boleh **beberapa halaman** kalau tamu banyak. Pecah otomatis tiap ~30 foto.
+- Kalau tidak ada satu pun foto tamu, chapter ini **tidak dibuat** — jangan tampilkan halaman kosong
+
+Operator tetap bisa menyembunyikan foto tamu satu per satu dari preview (moderasi). Foto yang disembunyikan tidak ikut export.
+
 ---
 
 ## 12. API Studio
@@ -389,7 +420,8 @@ Builder §10. Portabilitas §4 dipenuhi.
 
 ### M6 — Guest Intake
 Service `intake/` + Docker. 5 layar sesuai `dwa-r2-s4.html`. QR generator. Rate limit. Jendela waktu. Pull incremental ke Studio.
-**Selesai kalau:** scan QR dari HP lain → upload 3 foto → `POST /intake/pull` di Studio → 3 foto masuk sebagai `source='guest'` dan sudah diproses. Pull kedua kalinya tidak menggandakan.
+Ditambah chapter Guest Memories: layout mosaik + kartu pesan, atribusi nama & relasi, pecah otomatis tiap ~30 foto, aturan kurasi khusus foto tamu (§8).
+**Selesai kalau:** tiga HP berbeda scan QR → masing-masing upload 3 foto + tulis pesan → `POST /intake/pull` di Studio → 9 foto masuk sebagai `source='guest'`, chapter Guest Memories terbentuk sendiri dengan **ketiga tamu terwakili**, pesan mereka tampil sebagai kartu, dan pull kedua kalinya tidak menggandakan apa pun.
 
 ### M7 — Serah terima
 Script deploy album ke target (NAS via SFTP, atau folder mana pun). `npm run backup` (tar project + db). README lengkap dari nol. `docs/decisions.md`.
