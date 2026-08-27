@@ -262,6 +262,35 @@ Tabel keputusan berdasarkan jumlah + orientasi, **bukan** if-else bercabang:
 
 > **Sebut apa adanya di kode.** Ini heuristik, bukan model terlatih. Label "AI" di UI boleh dipertahankan sesuai prototipe, tapi nama fungsi, komentar, dan `docs/` harus jujur.
 
+### Titik ekstensi untuk model vision/LLM nanti
+
+Model vision **tidak dibangun sekarang**, tapi tempatnya disiapkan sekarang — karena menyisipkannya belakangan tanpa persiapan berarti membongkar `curate.js`.
+
+Cukup tiga hal, jangan lebih:
+
+**1. Satu interface scorer.** Semua penilai foto memenuhi kontrak yang sama:
+
+```js
+// ai/scorers/index.js
+// score(media, filePath) → { scores: {...}, tags: [...] }
+//   scores: angka 0..1 per dimensi, bebas kuncinya
+//   tags:   label bebas, contoh ['pelaminan','grup','outdoor']
+export const heuristicScorer = { name: 'heuristic', version: 1, score }
+```
+Sekarang cuma ada `heuristicScorer`. Nanti tinggal tambah `visionScorer` dan gabungkan hasilnya — tanpa menyentuh `curate.js`.
+
+**2. Dua kolom disiapkan sejak migration pertama**, biarkan NULL:
+```sql
+ALTER TABLE media ADD COLUMN tags_json TEXT;      -- hasil tagging, NULL sekarang
+ALTER TABLE media ADD COLUMN embedding BLOB;      -- vektor, NULL sekarang
+ALTER TABLE media ADD COLUMN scorer_version TEXT; -- penanda siapa yang menilai
+```
+Menambah kolom ke SQLite yang sudah berisi ratusan project itu merepotkan. Membiarkannya NULL sekarang tidak berbiaya apa pun.
+
+**3. `curate.js` membaca `scores` dan `tags`, bukan `sharpness` langsung.** Kalau `curate.js` menyebut `media.sharpness` di mana-mana, dia terikat ke heuristik selamanya.
+
+**Berhenti di situ.** Jangan bikin plugin system, registry, atau abstraksi berlapis untuk sesuatu yang belum ada. Satu interface, tiga kolom, satu aturan baca — itu cukup untuk menyisipkan model nanti, dan tidak cukup besar untuk jadi beban sekarang.
+
 ---
 
 ## 9. Preview & editor — jantung aplikasi
