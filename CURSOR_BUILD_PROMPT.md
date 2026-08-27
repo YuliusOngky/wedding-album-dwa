@@ -170,6 +170,16 @@ guests(id, name, relation, message, created_at);
 
 settings(key PRIMARY KEY, value);
 -- wedding_film_media_id, cover_media_id, intake_token, intake_url, dll
+
+decisions(
+  id, at,
+  action,            -- 'hide'|'unhide'|'swap'|'pick'|'reorder'|'delete'|'set_cover'
+  media_id,          -- yang dipilih / dikenai aksi
+  rejected_json,     -- ARRAY media_id yang tersedia tapi TIDAK dipilih
+  context_json,      -- {chapter_kind, layout_key, slot_idx, page_idx, source}
+  snapshot_json      -- skor & tag SEMUA kandidat saat itu, chosen + rejected
+);
+CREATE INDEX ON decisions(at);
 ```
 
 Aturan:
@@ -289,7 +299,9 @@ Menambah kolom ke SQLite yang sudah berisi ratusan project itu merepotkan. Membi
 
 **3. `curate.js` membaca `scores` dan `tags`, bukan `sharpness` langsung.** Kalau `curate.js` menyebut `media.sharpness` di mana-mana, dia terikat ke heuristik selamanya.
 
-**Berhenti di situ.** Jangan bikin plugin system, registry, atau abstraksi berlapis untuk sesuatu yang belum ada. Satu interface, tiga kolom, satu aturan baca — itu cukup untuk menyisipkan model nanti, dan tidak cukup besar untuk jadi beban sekarang.
+**4. Rekam keputusan operator sejak M4** — lihat §9. Model butuh contoh selera, dan satu-satunya sumbernya adalah apa yang kamu buang dan tukar setiap hari.
+
+**Berhenti di situ.** Jangan bikin plugin system, registry, atau abstraksi berlapis untuk sesuatu yang belum ada. Satu interface, tiga kolom, satu aturan baca, satu tabel catatan — itu cukup untuk menyisipkan model nanti, dan tidak cukup besar untuk jadi beban sekarang.
 
 ---
 
@@ -310,6 +322,32 @@ Yang wajib ada di preview (poin 5 konsep):
 - Autosave debounce 800 ms + indikator "Semua perubahan tersimpan" seperti prototipe
 
 Grid kandidat harus bisa disortir: skor kualitas, waktu, jumlah wajah, sumber (klien/tamu), dan filter "hanya yang belum dipakai".
+
+### Pencatatan keputusan operator
+
+Setiap kali operator membuang atau menukar foto, dia sedang menyatakan selera yang tidak diketahui sistem. Catat itu ke tabel `decisions`. **Tidak dipakai sekarang** — ini bahan untuk model vision nanti.
+
+**Yang menentukan berguna atau tidaknya data ini: catat yang ditolak, bukan cuma yang dipilih.**
+
+"Foto A disembunyikan" hampir tidak bernilai. "Untuk slot ini, dari kandidat A, B, C — operator memilih B" adalah **pasangan preferensi**, dan itu yang bisa dilatih. Karena itu `rejected_json` wajib diisi setiap kali ada pilihan nyata:
+
+| Aksi | `media_id` | `rejected_json` |
+|---|---|---|
+| Ganti foto di slot | pengganti | foto lama + kandidat yang terlihat di grid saat itu |
+| Sembunyikan foto | yang disembunyikan | kosong — ini sinyal negatif tunggal |
+| Pilih cover | yang dipilih | semua kandidat cover yang ditawarkan |
+| Terima hasil curate apa adanya | tiap foto terpakai | yang dibuang curate di momen yang sama |
+
+`snapshot_json` menyimpan skor & tag **semua** kandidat saat keputusan diambil. Ini penting: kalau setahun lagi rumus skor berubah, data lama tetap terbaca sendiri tanpa perlu menghitung ulang dari foto asli.
+
+Ketentuan:
+- **Tanpa UI.** Operator tidak boleh merasa sedang diawasi atau diminta melabeli apa pun.
+- Tulis asinkron, jangan pernah memblokir interaksi editor
+- Ikut serta di `npm run backup`, **tidak** ikut di export ke klien
+- Undo juga dicatat sebagai `action` tersendiri — operator yang membatalkan berarti keputusan pertama salah, dan itu informasi
+- Tidak ada data pribadi tamu di sini selain `media_id`
+
+Perkiraan ukuran: ~500 keputusan per album, < 1 MB. Sepuluh album ≈ 5.000 pasangan preferensi nyata dari selera kamu sendiri.
 
 ---
 
@@ -441,7 +479,8 @@ Pipeline §7 lengkap: salin, EXIF, varian, transcode film, worker pool, SSE prog
 
 ### M4 — Preview & editor
 Layar utama sesuai `dwa-r2-s2.html`. Live preview memakai template export yang sama. Sembunyikan/ganti/geser foto, ganti layout, undo-redo 30 langkah, autosave.
-**Selesai kalau:** operator bisa menyusun album 12 halaman sepenuhnya lewat UI tanpa menyentuh database, undo mengembalikan 30 langkah dengan benar, dan refresh browser tidak kehilangan apa pun.
+Ditambah pencatatan `decisions` di latar belakang (tanpa UI).
+**Selesai kalau:** operator bisa menyusun album 12 halaman sepenuhnya lewat UI tanpa menyentuh database, undo mengembalikan 30 langkah dengan benar, refresh browser tidak kehilangan apa pun — dan setelah sesi penyuntingan itu, tabel `decisions` berisi baris `swap` yang `rejected_json`-nya **tidak kosong** serta `snapshot_json` yang memuat skor kandidat terpilih maupun yang ditolak.
 
 ### M5 — Export statis
 Builder §10. Portabilitas §4 dipenuhi.
