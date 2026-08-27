@@ -755,12 +755,15 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'DM Sans',sans-seri
             <div class="pg-cer-photo"></div>
             <div class="pg-cer-overlay"></div>
             <svg class="pg-cer-arch" viewBox="0 0 236 300" fill="none">
+              <!-- Wedding arch / mandap shape -->
               <path d="M 60,280 L 60,100 Q 60,30 118,30 Q 176,30 176,100 L 176,280" stroke="rgba(201,169,110,0.3)" stroke-width="1.5" fill="none"/>
               <path d="M 40,280 L 40,110 Q 40,10 118,10 Q 196,10 196,110 L 196,280" stroke="rgba(201,169,110,0.15)" stroke-width="1" fill="none"/>
+              <!-- Floral details -->
               <circle cx="60" cy="100" r="6" fill="rgba(201,169,110,0.25)"/>
               <circle cx="176" cy="100" r="6" fill="rgba(201,169,110,0.25)"/>
               <circle cx="118" cy="30" r="8" fill="rgba(201,169,110,0.3)"/>
               <circle cx="118" cy="30" r="4" fill="rgba(201,169,110,0.5)"/>
+              <!-- Hanging strings -->
               <line x1="80" y1="30" x2="80" y2="90" stroke="rgba(201,169,110,0.2)" stroke-width="1" stroke-dasharray="3,4"/>
               <line x1="100" y1="20" x2="100" y2="80" stroke="rgba(201,169,110,0.15)" stroke-width="1" stroke-dasharray="3,4"/>
               <line x1="136" y1="20" x2="136" y2="80" stroke="rgba(201,169,110,0.15)" stroke-width="1" stroke-dasharray="3,4"/>
@@ -782,6 +785,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'DM Sans',sans-seri
               <div class="pg-ppl-title">Those who<br>celebrated with us.</div>
             </div>
             <div class="pg-ppl-grid">
+              <!-- Photo simulations -->
               <div class="pg-ppl-photo" style="background:linear-gradient(150deg,#A07038 0%,#4A2010 55%,#180C06 100%)"></div>
               <div class="pg-ppl-photo" style="background:linear-gradient(145deg,#C89058 0%,#7A4020 50%,#2A1208 100%)"></div>
               <div class="pg-ppl-photo" style="background:linear-gradient(160deg,#6A4020 0%,#2A1008 100%)"></div>
@@ -954,7 +958,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'DM Sans',sans-seri
         <div class="ph-thumb" onclick="selectPhoto(this)"><div class="ph-img" style="background:linear-gradient(165deg,#E0B888,#A07848 45%,#4A2818)"></div></div>
       </div>
       <div style="font-size:9.5px;color:var(--muted);text-align:center;margin-bottom:10px">Showing 9 of 86 moments · <span style="color:var(--gold-dk);cursor:pointer">View all</span></div>
-      <button style="width:100%;height:38px;background:var(--ink);border:none;border-radius:4px;color:var(--gold);font-family:'DM Sans',sans-serif;font-size:10.5px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer" onclick="showToast('Photo replaced successfully')">Apply Photo</button>
+      <button class="btn-pri" style="width:100%;height:38px;font-size:10.5px" onclick="showToast('Photo replaced successfully')">Apply Photo</button>
     </div>
 
     <!-- Story Edit panel -->
@@ -982,7 +986,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'DM Sans',sans-seri
       </button>
     </div>
 
-    <!-- Publish panel -->
+    <!-- Publish panel (shown in topbar publish mode) -->
     <div class="tp-body" id="tp-publish" style="display:none">
       <div class="tool-section-label" style="margin-bottom:8px">Privacy</div>
       <div class="privacy-options">
@@ -1084,6 +1088,7 @@ let curChapter = 'journey', curPage = 1, curLayout = 'a';
 let curToolMode = 'ai';
 
 function showPage(ch){
+  // Hide all album pages
   document.querySelectorAll('.album-page').forEach(p=>p.classList.remove('on'));
   let id = pageMap[ch];
   if(ch==='journey') id = 'pg-journey-'+curLayout;
@@ -1128,6 +1133,7 @@ function selectLayout(layout, el){
   curLayout = layout;
   document.querySelectorAll('.layout-variant').forEach(v=>v.classList.remove('on'));
   el.classList.add('on');
+  // Update preview if on journey chapter
   if(curChapter === 'journey'){
     document.querySelectorAll('.album-page').forEach(p=>p.classList.remove('on'));
     document.getElementById('pg-journey-'+layout).classList.add('on');
@@ -1145,9 +1151,11 @@ function setToolMode(mode, tab){
   });
   const target = document.getElementById('tp-'+mode);
   if(target) target.style.display = 'block';
+  // Map publish to tp-publish
   if(mode==='publish'){
     const pEl = document.getElementById('tp-publish');
     if(pEl) pEl.style.display = 'block';
+    // find tp-ai and hide
     const aiEl = document.getElementById('tp-ai');
     if(aiEl) aiEl.style.display = 'none';
   }
@@ -1157,6 +1165,7 @@ function setEditorMode(mode, tabEl){
   document.querySelectorAll('.mode-tab').forEach(t=>t.classList.remove('on'));
   if(tabEl) tabEl.classList.add('on');
   if(mode==='publish'){
+    // Show publish panel
     document.querySelectorAll('.tp-tab').forEach(t=>t.classList.remove('on'));
     ['tp-ai','tp-layouts','tp-photos','tp-story','tp-publish'].forEach(id=>{
       const el = document.getElementById(id);
@@ -1167,6 +1176,7 @@ function setEditorMode(mode, tabEl){
     selectChapter('film', document.querySelectorAll('.chapter-item')[7], 0);
     showToast('Film configuration mode — right panel shows film settings');
   } else {
+    // Restore editor mode
     const aiEl = document.getElementById('tp-ai');
     if(aiEl) aiEl.style.display = 'block';
     document.querySelectorAll('.tp-tab')[0].classList.add('on');

@@ -647,7 +647,8 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--ink)}
   display:flex;align-items:center;justify-content:center;
   flex-shrink:0;
 }
-.stat-icon svg{width:14px;height:14px;color:var(--gold-dk)}.stat-num{
+.stat-icon svg{width:14px;height:14px;color:var(--gold-dk)}
+.stat-num{
   font-family:'Cormorant Garamond',serif;font-size:20px;
   font-weight:400;color:var(--ink);min-width:36px;
 }
@@ -749,24 +750,38 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--ink)}
               <circle cx="170" cy="60" r="8" fill="rgba(255,218,148,0.16)"/>
               <circle cx="20" cy="80" r="10" fill="rgba(255,200,120,0.1)"/>
               <circle cx="140" cy="100" r="15" fill="rgba(200,160,80,0.1)"/>
+
               <!-- BRIDE (left) -->
+              <!-- Dress -->
               <ellipse cx="75" cy="170" rx="28" ry="42" fill="rgba(235,225,210,0.88)"/>
+              <!-- Bodice -->
               <path d="M 60,130 Q 62,118 68,112 Q 74,108 80,108 Q 86,108 90,114 Q 95,122 94,132 Q 90,138 85,140 Q 78,142 72,140 Q 65,137 60,130 Z" fill="rgba(228,218,200,0.92)"/>
+              <!-- Veil -->
               <path d="M 68,105 Q 80,98 92,105 Q 98,115 96,130 Q 85,122 80,120 Q 74,118 68,125 Q 64,115 68,105 Z" fill="rgba(245,240,232,0.6)"/>
+              <!-- Head -->
               <ellipse cx="80" cy="100" rx="14" ry="16" fill="rgba(175,138,108,0.95)"/>
+              <!-- Hair -->
               <path d="M 66,97 Q 66,86 80,85 Q 94,85 94,96 Q 88,91 80,91 Q 72,91 66,97 Z" fill="rgba(45,28,15,0.85)"/>
+              <!-- Bouquet -->
               <circle cx="92" cy="150" r="9" fill="rgba(180,100,100,0.4)"/>
               <circle cx="88" cy="145" r="7" fill="rgba(195,115,115,0.35)"/>
               <circle cx="96" cy="147" r="6" fill="rgba(165,90,90,0.35)"/>
+
               <!-- GROOM (right) -->
+              <!-- Suit trousers -->
               <rect x="108" y="148" width="16" height="50" rx="4" fill="rgba(22,16,12,0.9)"/>
               <rect x="126" y="148" width="16" height="50" rx="4" fill="rgba(22,16,12,0.9)"/>
+              <!-- Jacket -->
               <path d="M 105,120 Q 107,110 116,108 Q 120,107 124,108 Q 133,110 135,120 Q 137,132 135,148 L 105,148 Q 103,134 105,120 Z" fill="rgba(18,13,9,0.92)"/>
+              <!-- Shirt & tie -->
               <path d="M 116,108 L 120,108 L 121,130 L 119,108 Z" fill="rgba(240,232,220,0.7)"/>
               <path d="M 118,115 L 122,115 L 121,132 L 119,132 Z" fill="rgba(180,140,80,0.7)"/>
+              <!-- Head -->
               <ellipse cx="120" cy="100" rx="13" ry="15" fill="rgba(165,128,98,0.95)"/>
+              <!-- Hair -->
               <path d="M 107,96 Q 107,86 120,85 Q 133,85 133,96 Q 127,90 120,90 Q 113,90 107,96 Z" fill="rgba(35,22,12,0.9)"/>
             </svg>
+
             <!-- Content -->
             <div class="s1-content">
               <div class="s1-eyebrow">AI-Powered Digital Album</div>
@@ -784,6 +799,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--ink)}
             <div class="ti"><div class="ti-n">8+</div><div class="ti-l">Story Chapters</div></div>
             <div class="ti"><div class="ti-n">1</div><div class="ti-l">Wedding Film</div></div>
           </div>
+          <!-- Home bar -->
           <div class="hb" style="color:var(--white)"><div class="hb-line"></div></div>
         </div>
 
@@ -793,6 +809,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--ink)}
             <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" opacity="0.5"><path d="M1.42 9a16 16 0 0 1 21.16 0M5 12.55a11 11 0 0 1 14.08 0M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01"/></svg>
             <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" opacity="0.7"><rect x="2" y="7" width="18" height="12" rx="2"/><path d="M22 11v2" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
           </div></div>
+
           <div class="setup-nav">
             <button class="back-btn" onclick="goto(0)">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
@@ -804,32 +821,38 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--ink)}
             </div>
             <span class="prog-txt">Step 1 of 3</span>
           </div>
+
           <div class="setup-head">
             <div class="setup-eyebrow">Album Setup</div>
             <div class="setup-title">Let's begin<br><em>your story.</em></div>
           </div>
+
           <div class="setup-form">
             <div class="field">
               <div class="field-label">Bride / Partner 1</div>
-              <div class="field-val">Ananda Putri
+              <div class="field-val">
+                Ananda Putri
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
               </div>
             </div>
             <div class="field">
               <div class="field-label">Groom / Partner 2</div>
-              <div class="field-val">Yulius Pratama
+              <div class="field-val">
+                Yulius Pratama
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
               </div>
             </div>
             <div class="field">
               <div class="field-label">Wedding Date</div>
-              <div class="field-val">12 August 2026
+              <div class="field-val">
+                12 August 2026
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
               </div>
             </div>
             <div class="field">
               <div class="field-label">Location / Venue</div>
-              <div class="field-val">Ubud · Bali
+              <div class="field-val">
+                Ubud · Bali
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
               </div>
             </div>
@@ -843,6 +866,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--ink)}
               </div>
             </div>
           </div>
+
           <div class="setup-foot">
             <div class="setup-ai-note">
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
@@ -859,6 +883,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--ink)}
             <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" opacity="0.5"><path d="M1.42 9a16 16 0 0 1 21.16 0M5 12.55a11 11 0 0 1 14.08 0M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01"/></svg>
             <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" opacity="0.7"><rect x="2" y="7" width="18" height="12" rx="2"/></svg>
           </div></div>
+
           <div class="setup-nav">
             <button class="back-btn" onclick="goto(1)">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
@@ -870,12 +895,15 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--ink)}
             </div>
             <span class="prog-txt">Step 2 of 3</span>
           </div>
+
           <div class="culture-head">
             <div class="setup-eyebrow">Your Wedding Culture</div>
             <div class="culture-title">Tell us about<br>your celebration.</div>
             <div class="culture-sub">AI will shape your album's story, chapters, and narrative around your wedding traditions.</div>
           </div>
+
           <div class="culture-grid" id="culture-grid">
+            <!-- 9 culture cards -->
             <div class="culture-card" onclick="selCulture(this)">
               <div class="culture-motif">🌟</div>
               <div class="culture-name">Modern</div>
@@ -924,6 +952,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--ink)}
               <div class="culture-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
             </div>
           </div>
+
           <div class="culture-foot">
             <div class="culture-ai-note">AI will organize chapters, terminology and storytelling around your selected tradition.</div>
             <button class="btn-pri" onclick="goto(3)">Continue →</button>
@@ -937,6 +966,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--ink)}
             <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" opacity="0.5"><path d="M1.42 9a16 16 0 0 1 21.16 0M5 12.55a11 11 0 0 1 14.08 0M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01"/></svg>
             <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" opacity="0.7"><rect x="2" y="7" width="18" height="12" rx="2"/></svg>
           </div></div>
+
           <div class="setup-nav">
             <button class="back-btn" onclick="goto(2)">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
@@ -948,11 +978,13 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--ink)}
             </div>
             <span class="prog-txt">Step 3 of 3</span>
           </div>
+
           <div class="upload-head">
             <div class="upload-eyebrow">Upload Your Memories</div>
             <div class="upload-title">Upload<br>everything.</div>
             <div class="upload-sub">Don't curate first — AI will find your best moments automatically.</div>
           </div>
+
           <div class="upload-zone" onclick="this.style.background='rgba(201,169,110,0.1)'">
             <svg class="upload-icon" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
               <polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/>
@@ -961,21 +993,28 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--ink)}
             <div class="upload-zone-title">Tap to add photos & videos</div>
             <div class="upload-zone-sub">or drag and drop from your gallery</div>
             <div class="upload-types">
-              <span class="type-badge">JPG</span><span class="type-badge">PNG</span>
-              <span class="type-badge">HEIC</span><span class="type-badge">MOV</span><span class="type-badge">MP4</span>
+              <span class="type-badge">JPG</span>
+              <span class="type-badge">PNG</span>
+              <span class="type-badge">HEIC</span>
+              <span class="type-badge">MOV</span>
+              <span class="type-badge">MP4</span>
             </div>
           </div>
+
           <div class="upload-stats">
             <div class="upload-stat-txt"><strong>327 photos</strong> &amp; <strong>12 videos</strong> selected</div>
             <div class="add-more">+ Add more</div>
           </div>
+
           <div class="upload-preview">
+            <!-- Thumbnail simulations -->
             <div class="up-thumb"><div class="up-thumb-img" style="background:linear-gradient(145deg,#8A5828,#3A1808)"></div></div>
             <div class="up-thumb"><div class="up-thumb-img" style="background:linear-gradient(155deg,#C49050,#7A4020)"></div></div>
             <div class="up-thumb"><div class="up-thumb-img" style="background:linear-gradient(140deg,#5A3018,#1A0C06)"></div></div>
             <div class="up-thumb"><div class="up-thumb-img" style="background:linear-gradient(160deg,#E8C070,#A87040)"></div></div>
             <div class="up-more">+323</div>
           </div>
+
           <div class="upload-foot">
             <div class="upload-ai-note">
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:3px"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
@@ -994,49 +1033,73 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--ink)}
               <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10" opacity="0.5"/></svg>
             </div>
           </div>
+
           <div class="ai-body">
             <div class="ai-label">Optima AI</div>
             <div class="ai-title">Analyzing<br>your memories…</div>
+
+            <!-- Orbital rings -->
             <div class="orb-wrap">
-              <div class="ring r1"></div><div class="ring r2"></div><div class="ring r3"></div>
-              <div class="orb-center"><div class="orb-center-dot"></div></div>
+              <div class="ring r1"></div>
+              <div class="ring r2"></div>
+              <div class="ring r3"></div>
+              <div class="orb-center">
+                <div class="orb-center-dot"></div>
+              </div>
             </div>
+
+            <!-- Checklist -->
             <div class="ai-checks">
               <div class="ai-check ck-done">
                 <div class="ck-ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div>
-                Duplicate detection<div class="ck-badge">Done</div>
+                Duplicate detection
+                <div class="ck-badge">Done</div>
               </div>
               <div class="ai-check ck-done">
                 <div class="ck-ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div>
-                Blur &amp; quality analysis<div class="ck-badge">Done</div>
+                Blur &amp; quality analysis
+                <div class="ck-badge">Done</div>
               </div>
               <div class="ai-check ck-active">
-                <div class="ck-ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
-                Scene recognition<div class="ck-badge">In progress</div>
+                <div class="ck-ic">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+                </div>
+                Scene recognition
+                <div class="ck-badge">In progress</div>
               </div>
               <div class="ai-check ck-queue">
                 <div class="ck-ic"><svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="5"/></svg></div>
-                Face &amp; couple recognition<div class="ck-badge">Queued</div>
+                Face &amp; couple recognition
+                <div class="ck-badge">Queued</div>
               </div>
               <div class="ai-check ck-queue">
                 <div class="ck-ic"><svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="5"/></svg></div>
-                Moment categorization<div class="ck-badge">Queued</div>
+                Moment categorization
+                <div class="ck-badge">Queued</div>
               </div>
               <div class="ai-check ck-queue">
                 <div class="ck-ic"><svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="5"/></svg></div>
-                Story &amp; chapter creation<div class="ck-badge">Queued</div>
+                Story &amp; chapter creation
+                <div class="ck-badge">Queued</div>
               </div>
               <div class="ai-check ck-queue">
                 <div class="ck-ic"><svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="5"/></svg></div>
-                Layout &amp; film generation<div class="ck-badge">Queued</div>
+                Layout &amp; film generation
+                <div class="ck-badge">Queued</div>
               </div>
             </div>
+
+            <!-- Progress -->
             <div class="ai-progress">
-              <div class="ai-prog-row"><span class="ai-prog-label">Overall progress</span><span class="ai-prog-pct">34%</span></div>
+              <div class="ai-prog-row">
+                <span class="ai-prog-label">Overall progress</span>
+                <span class="ai-prog-pct">34%</span>
+              </div>
               <div class="ai-prog-bar"><div class="ai-prog-fill" style="width:34%"></div></div>
             </div>
             <div class="ai-eta">Estimated time remaining: ~2 min 40 sec</div>
           </div>
+
           <div class="hb" style="color:var(--white)"><div class="hb-line"></div></div>
         </div>
 
@@ -1046,9 +1109,13 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--ink)}
             <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" opacity="0.5"><path d="M1.42 9a16 16 0 0 1 21.16 0M5 12.55a11 11 0 0 1 14.08 0M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01"/></svg>
             <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" opacity="0.7"><rect x="2" y="7" width="18" height="12" rx="2"/></svg>
           </div></div>
+
           <div class="ready-top">
+            <!-- Celebration rings -->
             <div class="ready-celebration">
-              <div class="ready-ring"></div><div class="ready-ring"></div><div class="ready-ring"></div>
+              <div class="ready-ring"></div>
+              <div class="ready-ring"></div>
+              <div class="ready-ring"></div>
               <div class="ready-icon">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
               </div>
@@ -1057,24 +1124,36 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--ink)}
             <div class="ready-h1">Your album<br>is <em>ready.</em></div>
             <div class="ready-divider"></div>
           </div>
+
+          <!-- Stats -->
           <div class="ready-stats">
             <div class="stat-row">
               <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
-              <div class="stat-num">327</div><div class="stat-desc">photos analyzed</div><div class="stat-ai">AI analyzed</div>
+              <div class="stat-num">327</div>
+              <div class="stat-desc">photos analyzed</div>
+              <div class="stat-ai">AI analyzed</div>
             </div>
             <div class="stat-row">
               <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div>
-              <div class="stat-num">86</div><div class="stat-desc">best moments selected</div><div class="stat-ai">AI curated</div>
+              <div class="stat-num">86</div>
+              <div class="stat-desc">best moments selected</div>
+              <div class="stat-ai">AI curated</div>
             </div>
             <div class="stat-row">
               <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
-              <div class="stat-num">8</div><div class="stat-desc">story chapters created</div><div class="stat-ai">AI composed</div>
+              <div class="stat-num">8</div>
+              <div class="stat-desc">story chapters created</div>
+              <div class="stat-ai">AI composed</div>
             </div>
             <div class="stat-row">
               <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg></div>
-              <div class="stat-num">1</div><div class="stat-desc">cinematic wedding film</div><div class="stat-ai">3:42 min</div>
+              <div class="stat-num">1</div>
+              <div class="stat-desc">cinematic wedding film</div>
+              <div class="stat-ai">3:42 min</div>
             </div>
           </div>
+
+          <!-- CTAs -->
           <div class="ready-ctas">
             <button class="btn-ready-main">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18"/></svg>
@@ -1083,6 +1162,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--ink)}
             <button class="btn-ready-edit">Open Desktop Editor</button>
             <div class="ready-link">Request Changes from AI</div>
           </div>
+
           <div class="hb"><div class="hb-line"></div></div>
         </div>
 
@@ -1135,47 +1215,82 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--ink)}
 </div><!-- /shell -->
 
 <script>
+/* ── SCREEN DATA ─────────────────────────── */
 const screens = [
-  {id:'s1',name:'Landing Page',num:'01',title:'Landing Page',
+  {
+    id:'s1',name:'Landing Page',num:'01',
+    title:'Landing Page',
     desc:'<p>The homepage communicates the core promise upfront: <strong>AI creates your album.</strong> You upload, AI does the work.</p><p>Couple silhouette hero establishes cinematic tone immediately. Trust indicators signal product depth without overwhelming.</p>',
-    note:'First impression is immersive, emotional photography — not a SaaS dashboard or form.'},
-  {id:'s2',name:'Album Setup',num:'02',title:'Album Setup',
-    desc:'<p>Minimal setup: couple names, date, location, visual style. <strong>Three steps total.</strong> Nothing about selecting photos yet.</p><p>Visual style chips give creative direction to AI — not manual template choice.</p>',
-    note:'Setup is light. The heavy lifting happens in AI Processing, not here.'},
-  {id:'s3',name:'Culture Selection',num:'03',title:'Indonesian Culture Selection',
+    note:'First impression is immersive, emotional photography — not a SaaS dashboard or form.'
+  },
+  {
+    id:'s2',name:'Album Setup',num:'02',
+    title:'Album Setup',
+    desc:'<p>Minimal setup: couple names, date, location, visual style. <strong>Three steps total.</strong> Nothing about selecting photos yet.</p><p>Visual style chips (Cinematic, Editorial, Romantic, Minimal) give creative direction to AI — not manual template choice.</p>',
+    note:'Setup is light. The heavy lifting happens in AI Processing, not here.'
+  },
+  {
+    id:'s3',name:'Culture Selection',num:'03',
+    title:'Indonesian Culture Selection',
     desc:'<p><strong>New in Revision 2.</strong> AI uses the selected culture to determine chapter structure, terminology, and storytelling.</p><p>9 options cover major Indonesian wedding traditions. Selection influences the album narrative — not decorative icons.</p>',
-    note:"Javanese selection → AI uses Siraman, Ijab Kabul, Resepsi as chapter structure. Not clip-art."},
-  {id:'s4',name:'Upload Everything',num:'04',title:'Upload Everything',
-    desc:'<p><strong>Revised philosophy:</strong> "Upload everything" — no pre-curation required. AI handles duplicate detection, quality analysis, and best-photo selection.</p>',
-    note:"The user should not feel like they need to select photos. That is AI's job."},
-  {id:'s5',name:'AI Processing',num:'05',title:'AI Processing',
-    desc:'<p>The checklist shows the full scope of AI work: duplicate detection → quality analysis → scene recognition → face recognition → moment categorization → story creation → layout generation.</p>',
-    note:'7 distinct AI operations communicate the value of automation — this is not a simple crop tool.'},
-  {id:'s6',name:'Album Ready',num:'06',title:'Album Ready',
-    desc:'<p>Celebratory reveal. Stats make the AI work tangible: <strong>327 analyzed → 86 selected → 8 chapters → 1 film.</strong></p><p>Primary CTA is "View Your Album" — not "Edit."</p>',
-    note:'"Open Desktop Editor" is secondary. The album is already beautiful. Editing is a choice, not a requirement.'}
+    note:"Javanese selection → AI uses Siraman, Ijab Kabul, Resepsi as chapter structure. Not clip-art."
+  },
+  {
+    id:'s4',name:'Upload Everything',num:'04',
+    title:'Upload Everything',
+    desc:'<p><strong>Revised philosophy:</strong> "Upload everything" — no pre-curation required. AI handles duplicate detection, quality analysis, and best-photo selection.</p><p>Small thumbnails preview files added. The "+323" count communicates scale — this is a complete archive, not a curated set.</p>',
+    note:'The user should not feel like they need to select photos. That is AI\'s job.'
+  },
+  {
+    id:'s5',name:'AI Processing',num:'05',
+    title:'AI Processing',
+    desc:'<p>The checklist shows the full scope of AI work: duplicate detection → quality analysis → scene recognition → face recognition → moment categorization → story creation → layout generation.</p><p>Orbital animation provides visual feedback without progress anxiety. Estimated time grounds the wait.</p>',
+    note:'7 distinct AI operations communicate the value of automation — this is not a simple crop tool.'
+  },
+  {
+    id:'s6',name:'Album Ready',num:'06',
+    title:'Album Ready',
+    desc:'<p>Celebratory reveal. Stats make the AI work tangible: <strong>327 analyzed → 86 selected → 8 chapters → 1 film.</strong></p><p>Primary CTA is "View Your Album" — not "Edit." The album is complete. Editing is optional.</p>',
+    note:'"Open Desktop Editor" is secondary. The album is already beautiful. Editing is a choice, not a requirement.'
+  }
 ];
+
 let cur = 0;
+
 function goto(idx){
   if(idx < 0 || idx >= screens.length) return;
   document.getElementById(screens[cur].id).classList.remove('on');
-  document.querySelectorAll('.pl-item').forEach((el,i)=>{ el.classList.toggle('on', i===idx); });
+  // Update left panel
+  document.querySelectorAll('.pl-item').forEach((el,i)=>{
+    el.classList.toggle('on', i===idx);
+  });
   cur = idx;
   const s = screens[cur];
   document.getElementById(s.id).classList.add('on');
+  // Update labels
   document.getElementById('screen-label').textContent = s.num + ' / 06 — ' + s.name;
+  document.getElementById('screen-label2').textContent = '';
+  // Update right panel
   document.getElementById('pr-title').textContent = s.title;
   document.getElementById('pr-desc').innerHTML = s.desc;
   document.getElementById('pr-note').textContent = s.note;
-  document.querySelectorAll('.dot').forEach((d,i)=>{ d.classList.toggle('on', i===idx); });
+  // Dots
+  document.querySelectorAll('.dot').forEach((d,i)=>{
+    d.classList.toggle('on', i===idx);
+  });
+  // Arrows
   document.getElementById('arr-prev').classList.toggle('dis', cur===0);
   document.getElementById('arr-next').classList.toggle('dis', cur===screens.length-1);
 }
+
 function step(d){ goto(cur+d); }
+
 document.addEventListener('keydown', e=>{
   if(e.key==='ArrowRight') step(1);
   if(e.key==='ArrowLeft') step(-1);
 });
+
+// Culture card selection
 function selCulture(el){
   document.querySelectorAll('.culture-card').forEach(c=>c.classList.remove('sel'));
   el.classList.add('sel');

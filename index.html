@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Digital Wedding Album</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap">
+<style>
+  :root {
+    --espresso: #1C1915;
+    --gold: #C9A96E;
+    --ivory: #F7F2EA;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--espresso);
+    color: var(--ivory);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+  .brand {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 32px;
+  }
+  h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2.4rem, 6vw, 3.8rem);
+    font-weight: 300;
+    line-height: 1.1;
+    text-align: center;
+    margin-bottom: 12px;
+  }
+  h1 em { font-style: italic; color: var(--gold); }
+  .sub {
+    font-size: 0.78rem;
+    font-weight: 300;
+    color: rgba(247,242,234,0.45);
+    letter-spacing: 0.08em;
+    text-align: center;
+    margin-bottom: 56px;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    width: 100%;
+    max-width: 860px;
+  }
+  .card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(201,169,110,0.18);
+    border-radius: 4px;
+    padding: 28px 24px;
+    text-decoration: none;
+    color: inherit;
+    transition: background 0.2s, border-color 0.2s;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .card:hover {
+    background: rgba(201,169,110,0.07);
+    border-color: rgba(201,169,110,0.45);
+  }
+  .card-num {
+    font-size: 0.58rem;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+  .card-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.25rem;
+    font-weight: 400;
+    line-height: 1.2;
+  }
+  .card-desc {
+    font-size: 0.72rem;
+    font-weight: 300;
+    color: rgba(247,242,234,0.45);
+    line-height: 1.5;
+  }
+  .divider {
+    width: 40px;
+    height: 1px;
+    background: rgba(201,169,110,0.3);
+    margin: 48px auto 24px;
+  }
+  .footer {
+    font-size: 0.62rem;
+    font-weight: 300;
+    color: rgba(247,242,234,0.2);
+    letter-spacing: 0.1em;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+  <p class="brand">Optima Digital Selaras · DWA Prototype</p>
+  <h1>Digital <em>Wedding</em><br>Album</h1>
+  <p class="sub">Revision 2 — Complete 4-Section Prototype</p>
+  <div class="grid">
+    <a class="card" href="dwa-prototype.html">
+      <span class="card-num">Prototype V1</span>
+      <span class="card-title">Style Guide &amp; Overview</span>
+      <span class="card-desc">Token palette, typography, component library, dan design system reference.</span>
+    </a>
+    <a class="card" href="dwa-r2-s1.html">
+      <span class="card-num">Section 1</span>
+      <span class="card-title">Creation Flow</span>
+      <span class="card-desc">Onboarding — buat album baru, pilih paket, upload foto, preview.</span>
+    </a>
+    <a class="card" href="dwa-r2-s2.html">
+      <span class="card-num">Section 2</span>
+      <span class="card-title">Album Editor</span>
+      <span class="card-desc">Desktop editor — layout canvas, panel foto, tipografi, AI suggestions.</span>
+    </a>
+    <a class="card" href="dwa-r2-s3.html">
+      <span class="card-num">Section 3</span>
+      <span class="card-title">Mobile Viewer</span>
+      <span class="card-desc">Tampilan album di mobile — 9 halaman cover hingga guest memories.</span>
+    </a>
+    <a class="card" href="dwa-r2-s4.html">
+      <span class="card-num">Section 4</span>
+      <span class="card-title">Guest Experience</span>
+      <span class="card-desc">QR code flow — scan, upload foto, thank you page dalam Bahasa Indonesia.</span>
+    </a>
+  </div>
+  <div class="divider"></div>
+  <p class="footer">optimadigitalselaras.com &nbsp;·&nbsp; Digital Wedding Album &nbsp;·&nbsp; 2026</p>
+</body>
+</html>

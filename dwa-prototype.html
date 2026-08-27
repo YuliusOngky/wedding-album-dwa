@@ -1,3 +1,8 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Digital Wedding Album</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap">
 <style>
@@ -66,6 +71,7 @@ button{cursor:pointer;border:none;background:none;font-family:inherit}
 .dyn-island{position:absolute;top:14px;left:50%;transform:translateX(-50%);width:108px;height:30px;background:#0E0E10;border-radius:18px;z-index:50;pointer-events:none}
 
 /* ─── SCREEN BASE ─── */
+/* Every screen is exactly 676 px — no inner scroll needed */
 .sc{width:312px;height:676px;display:none;flex-direction:column;position:relative;overflow:hidden;font-family:'DM Sans',sans-serif}
 .sc.on{display:flex}
 
@@ -99,11 +105,15 @@ button{cursor:pointer;border:none;background:none;font-family:inherit}
 .hi-dk{width:90px;height:3.5px;border-radius:2px;background:rgba(255,255,255,0.22)}
 .hi-lt{width:90px;height:3.5px;border-radius:2px;background:rgba(0,0,0,0.12)}
 
+/* ═══════════════════════════════════════════
+   S1 — LANDING
+═══════════════════════════════════════════ */
 #s1{background:#0E0E10;color:#F7F2EA}
 .s1-top{display:flex;align-items:center;justify-content:space-between;padding:4px 20px 8px;flex-shrink:0}
 .s1-logo{font-family:'Cormorant Garamond',serif;font-size:0.78rem;font-weight:500;letter-spacing:0.16em;text-transform:uppercase;color:#C9A96E}
 .s1-menu{display:flex;flex-direction:column;gap:3.5px;cursor:pointer}
 .s1-menu span{display:block;width:20px;height:1.5px;background:#F7F2EA}
+
 .s1-hero{flex:1;position:relative;overflow:hidden}
 .s1-hero-bg{position:absolute;inset:0;background:var(--photo-a);opacity:.18}
 .s1-hero-content{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:24px}
@@ -113,6 +123,7 @@ button{cursor:pointer;border:none;background:none;font-family:inherit}
 .s1-ctarow{display:flex;flex-direction:column;gap:8px;max-width:220px}
 .s1-cta1{background:#C9A96E;color:#0E0E10;font-size:0.76rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;padding:13px 20px;border-radius:2px;cursor:pointer;text-align:center}
 .s1-cta2{color:rgba(247,242,234,0.45);font-size:0.72rem;letter-spacing:0.05em;padding:10px 0;display:flex;align-items:center;gap:6px;cursor:pointer}
+
 .s1-bottom{flex-shrink:0;padding:0 20px 0}
 .s1-prev-label{font-size:0.58rem;letter-spacing:0.16em;text-transform:uppercase;color:rgba(247,242,234,0.25);margin-bottom:8px}
 .s1-thumbs{display:flex;gap:7px;margin-bottom:12px}
@@ -126,6 +137,9 @@ button{cursor:pointer;border:none;background:none;font-family:inherit}
 .s1-step-lbl{font-size:0.58rem;font-weight:500;letter-spacing:0.03em;color:rgba(247,242,234,0.35)}
 .s1-step-lbl-a{color:#C9A96E;font-weight:600}
 
+/* ═══════════════════════════════════════════
+   S2 — CREATE ALBUM
+═══════════════════════════════════════════ */
 #s2{background:#F7F2EA}
 .s2-head{padding:8px 20px 12px;flex-shrink:0}
 .s2-h1{font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:400;color:#1C1915;line-height:1.1;margin-bottom:4px}
@@ -137,6 +151,9 @@ button{cursor:pointer;border:none;background:none;font-family:inherit}
 .sopt-off{background:#E8DCD0;color:#6B5E52}
 .s2-footer{padding:0 20px 0;flex-shrink:0}
 
+/* ═══════════════════════════════════════════
+   S3 — UPLOAD
+═══════════════════════════════════════════ */
 #s3{background:#F7F2EA}
 .uz{border:1.5px dashed rgba(201,169,110,0.45);border-radius:5px;margin:0 20px;padding:20px;text-align:center;cursor:pointer;background:rgba(201,169,110,0.03);flex-shrink:0}
 .uz-ico{width:38px;height:38px;border-radius:50%;background:rgba(201,169,110,0.12);border:1px solid rgba(201,169,110,0.25);margin:0 auto 10px;display:flex;align-items:center;justify-content:center}
@@ -155,6 +172,9 @@ button{cursor:pointer;border:none;background:none;font-family:inherit}
 .s3-tip strong{color:#1C1915}
 .s3-footer{padding:10px 20px 0;flex-shrink:0}
 
+/* ═══════════════════════════════════════════
+   S4 — AI PROCESSING
+═══════════════════════════════════════════ */
 #s4{background:#1C1915;color:#F7F2EA}
 .s4-skip{text-align:right;padding:4px 20px 0;font-size:0.7rem;color:rgba(247,242,234,0.25);flex-shrink:0}
 .s4-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px 24px}
@@ -183,6 +203,9 @@ button{cursor:pointer;border:none;background:none;font-family:inherit}
 .t-note{margin-left:auto;font-size:0.58rem;color:rgba(247,242,234,0.2)}
 .s4-est{margin-top:16px;font-size:0.66rem;color:rgba(247,242,234,0.2);text-align:center}
 
+/* ═══════════════════════════════════════════
+   S5 — PHOTO SELECTION
+═══════════════════════════════════════════ */
 #s5{background:#F7F2EA}
 .s5-sum{background:#1C1915;padding:12px 20px;flex-shrink:0}
 .s5-sum-main{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:400;color:#F7F2EA}
@@ -197,6 +220,9 @@ button{cursor:pointer;border:none;background:none;font-family:inherit}
 .s5-foot{padding:10px 20px;flex-shrink:0}
 .s5-foot-note{font-size:0.64rem;color:#9C8C80;text-align:center;margin-bottom:8px}
 
+/* ═══════════════════════════════════════════
+   S6 — ALBUM COVER
+═══════════════════════════════════════════ */
 #s6{color:#F7F2EA}
 .s6-photo{position:absolute;inset:0;background:var(--photo-a)}
 .s6-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(14,14,16,0.32) 0%,rgba(14,14,16,0.08) 35%,rgba(14,14,16,0.18) 65%,rgba(14,14,16,0.72) 100%)}
@@ -214,6 +240,9 @@ button{cursor:pointer;border:none;background:none;font-family:inherit}
 .al-dot{width:4px;height:4px;border-radius:50%;background:rgba(247,242,234,0.2);cursor:pointer}
 .al-dot.on{background:#C9A96E;width:16px;border-radius:2px}
 
+/* ═══════════════════════════════════════════
+   S7 — OUR STORY
+═══════════════════════════════════════════ */
 #s7{background:#0E0E10;color:#F7F2EA}
 .s7-chap{font-size:0.58rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(247,242,234,0.28);padding:12px 24px 0;flex-shrink:0}
 .s7-q{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:300;line-height:1.15;font-style:italic;color:#F7F2EA;padding:16px 24px 14px;flex-shrink:0;text-wrap:balance}
@@ -225,6 +254,9 @@ button{cursor:pointer;border:none;background:none;font-family:inherit}
 .s7-prev{font-size:0.66rem;color:rgba(247,242,234,0.22)}
 .s7-next{font-size:0.66rem;color:#C9A96E;display:flex;align-items:center;gap:4px;cursor:pointer;font-style:italic}
 
+/* ═══════════════════════════════════════════
+   S8 — CEREMONY
+═══════════════════════════════════════════ */
 #s8{background:#0E0E10;color:#F7F2EA}
 .s8-hero{width:100%;height:190px;flex-shrink:0;position:relative;overflow:hidden}
 .s8-over{position:absolute;bottom:0;left:0;right:0;padding:10px 20px;background:linear-gradient(to top,rgba(14,14,16,0.95),transparent)}
@@ -241,6 +273,9 @@ button{cursor:pointer;border:none;background:none;font-family:inherit}
 .s8-back{font-size:0.66rem;color:rgba(247,242,234,0.22)}
 .s8-fwd{font-size:0.66rem;color:#C9A96E;font-style:italic;cursor:pointer;display:flex;align-items:center;gap:4px}
 
+/* ═══════════════════════════════════════════
+   S9 — GUEST MEMORIES
+═══════════════════════════════════════════ */
 #s9{background:#F7F2EA}
 .s9-hdr{background:#1C1915;padding:12px 20px 14px;flex-shrink:0}
 .s9-hdr-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
@@ -259,6 +294,9 @@ button{cursor:pointer;border:none;background:none;font-family:inherit}
 .s9-add{margin:8px 16px 0;background:#1C1915;color:#F7F2EA;text-align:center;padding:12px;border-radius:2px;font-size:0.76rem;font-weight:500;letter-spacing:0.06em;cursor:pointer;flex-shrink:0}
 .s9-add span{display:block;font-size:0.6rem;color:rgba(247,242,234,0.38);margin-top:2px;font-weight:300}
 
+/* ═══════════════════════════════════════════
+   S10 — SHARE & PRIVACY
+═══════════════════════════════════════════ */
 #s10{background:#F7F2EA}
 .s10-body{padding:8px 20px 0;flex:1;display:flex;flex-direction:column}
 .s10-h1{font-family:'Cormorant Garamond',serif;font-size:1.7rem;font-weight:400;color:#1C1915;margin-bottom:3px}
@@ -283,41 +321,9 @@ button{cursor:pointer;border:none;background:none;font-family:inherit}
 .stat-n{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:400;color:#C9A96E}
 .stat-l{font-size:0.6rem;color:#9C8C80}
 
+/* ─── PROTO NAV ─── */
 .proto-nav{display:flex;align-items:center;justify-content:center;gap:18px}
 .nav-arr{width:38px;height:38px;border-radius:50%;border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;cursor:pointer;color:rgba(255,255,255,0.35);font-size:1rem;transition:all .2s}
-.nav-arr:hover{border-color:rgba(201,169,110,0.35);color:#C9A96E}
-.dots{display:flex;gap:4px;align-items:center}
-.dot{width:4px;height:4px;border-radius:50%;background:rgba(255,255,255,0.18);cursor:pointer;transition:all .2s}
-.dot.on{background:#C9A96E;width:14px;border-radius:2px}
-
-.sg{border-top:1px solid rgba(255,255,255,0.07);padding:56px 40px;max-width:860px;margin:0 auto;display:none}
-.sg.vis{display:block}
-.sg-sec{margin-bottom:44px}
-.sg-sec-label{font-size:0.58rem;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:#C9A96E;margin-bottom:16px}
-.swatches{display:flex;gap:10px;flex-wrap:wrap}
-.swatch{display:flex;flex-direction:column;align-items:center;gap:6px}
-.sw{width:56px;height:56px;border-radius:3px;border:1px solid rgba(255,255,255,0.07)}
-.swn{font-size:0.58rem;color:rgba(247,242,234,0.38)}
-.swh{font-size:0.58rem;color:rgba(247,242,234,0.22);font-variant-numeric:tabular-nums}
-.typo-rows{border-left:1px solid rgba(255,255,255,0.07);padding-left:20px;display:flex;flex-direction:column;gap:12px}
-.ty-d{font-family:'Cormorant Garamond',serif;font-size:2.2rem;font-weight:300;color:#F7F2EA;line-height:1.1}
-.ty-i{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-style:italic;font-weight:400;color:rgba(247,242,234,0.65)}
-.ty-b{font-size:0.84rem;color:rgba(247,242,234,0.45);line-height:1.7;font-weight:300}
-.ty-l{font-size:0.62rem;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:#9C8C80}
-.comp-row{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start}
-.c-btn{padding:12px 18px;font-size:0.74rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;border-radius:2px;cursor:pointer}
-.c-gold{background:#C9A96E;color:#1C1915;border:none}
-.c-dark{background:#1C1915;color:#F7F2EA;border:none}
-.c-ghost{background:transparent;color:#C9A96E;border:1px solid rgba(201,169,110,0.32)}
-.c-pill{padding:5px 12px;border-radius:20px;font-size:0.68rem;font-weight:500;cursor:pointer;border:none}
-.c-pa{background:#C9A96E;color:#1C1915}
-.c-pi{background:#E8DCD0;color:#6B5E52}
-
-.site-footer{border-top:1px solid rgba(255,255,255,0.05);padding:20px 40px;display:flex;align-items:center;justify-content:space-between}
-.ft-brand{font-family:'Cormorant Garamond',serif;font-size:0.8rem;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:#C9A96E}
-.ft-copy{font-size:0.62rem;color:rgba(247,242,234,0.18)}
-</style>
-
 .nav-arr:hover{border-color:rgba(201,169,110,0.35);color:#C9A96E}
 .dots{display:flex;gap:4px;align-items:center}
 .dot{width:4px;height:4px;border-radius:50%;background:rgba(255,255,255,0.18);cursor:pointer;transition:all .2s}
@@ -351,6 +357,8 @@ button{cursor:pointer;border:none;background:none;font-family:inherit}
 .ft-brand{font-family:'Cormorant Garamond',serif;font-size:0.8rem;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:#C9A96E}
 .ft-copy{font-size:0.62rem;color:rgba(247,242,234,0.18)}
 </style>
+</head>
+<body>
 
 <!-- HEADER -->
 <header class="shell-header">
@@ -482,6 +490,7 @@ button{cursor:pointer;border:none;background:none;font-family:inherit}
             <div class="s3-footer"><button class="btn-gold" onclick="goto(1)">Done — Process Photos →</button></div>
             <div class="home-bar"><div class="hi-lt"></div></div>
           </div>
+
           <!-- ══ S4: AI PROCESSING ═══════════════════ -->
           <div class="sc" id="s4">
             <div class="sb sb-dk" style="background:#1C1915"><span class="st">9:41</span><div class="si"><svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x=".5" y=".5" width="21" height="11" rx="3.5" stroke="#F7F2EA" stroke-opacity=".3"/><rect x="2" y="2" width="15" height="8" rx="2" fill="#F7F2EA"/></svg></div></div>
@@ -652,6 +661,7 @@ button{cursor:pointer;border:none;background:none;font-family:inherit}
             <div class="s9-add">Add Your Memory<span>No login required · via link or QR code</span></div>
             <div class="home-bar" style="background:#F7F2EA"><div class="hi-lt"></div></div>
           </div>
+
           <!-- ══ S10: SHARE & PRIVACY ════════════════ -->
           <div class="sc" id="s10" style="background:#F7F2EA">
             <div class="sb sb-lt"><span class="st">9:41</span></div>
